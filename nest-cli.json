@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/api-gateway/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/api-gateway",
+  "projects": {
+    "api-gateway": {
+      "type": "application",
+      "root": "apps/api-gateway",
+      "entryFile": "main",
+      "sourceRoot": "apps/api-gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
+      }
+    },
+    "api-authentication": {
+      "type": "application",
+      "root": "apps/api-authentication",
+      "entryFile": "main",
+      "sourceRoot": "apps/api-authentication/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/api-authentication/tsconfig.app.json"
+      }
+    },
+    "api-users": {
+      "type": "application",
+      "root": "apps/api-users",
+      "entryFile": "main",
+      "sourceRoot": "apps/api-users/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/api-users/tsconfig.app.json"
+      }
+    },
+    "users": {
+      "type": "application",
+      "root": "apps/users",
+      "entryFile": "main",
+      "sourceRoot": "apps/users/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/users/tsconfig.app.json"
+      }
+    },
+    "authentication": {
+      "type": "application",
+      "root": "apps/authentication",
+      "entryFile": "main",
+      "sourceRoot": "apps/authentication/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/authentication/tsconfig.app.json"
+      }
+    },
+    "animals": {
+      "type": "application",
+      "root": "apps/animals",
+      "entryFile": "main",
+      "sourceRoot": "apps/animals/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/animals/tsconfig.app.json"
+      }
+    },
+    "contracts": {
+      "type": "library",
+      "root": "libs/contracts",
+      "entryFile": "index",
+      "sourceRoot": "libs/contracts/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/contracts/tsconfig.lib.json"
+      }
+    }
+  }
+}

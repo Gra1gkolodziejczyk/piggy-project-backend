@@ -1,0 +1,52 @@
+version: '3.9'
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: apps/api-gateway/Dockerfile
+    container_name: api-gateway
+    environment:
+      - PORT=3000
+      - JWT_SECRET=dev-secret
+      - USERS_HOST=users
+      - USERS_PORT=4000
+      - AUTHENTICATION_HOST=authentication
+      - AUTHENTICATION_PORT=4002
+    ports:
+      - '3000:3000'
+    depends_on:
+      - users
+      - authentication
+    networks:
+      - appnet
+
+  users:
+    build:
+      context: .
+      dockerfile: apps/users/Dockerfile
+    container_name: users
+    environment:
+      - USERS_HOST=0.0.0.0
+      - USERS_PORT=4000
+    expose:
+      - '4000'
+    networks:
+      - appnet
+
+  authentication:
+    build:
+      context: .
+      dockerfile: apps/authentication/Dockerfile
+    container_name: authentication
+    environment:
+      - AUTHENTICATION_HOST=0.0.0.0
+      - AUTHENTICATION_PORT=4002
+      - JWT_SECRET=dev-secret
+    expose:
+      - '4002'
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge

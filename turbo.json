@@ -1,0 +1,26 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env*", "package.json", "pnpm-lock.yaml"],
+  "tasks": {
+    "typecheck": {
+      "outputs": [".tsbuildinfo"]
+    },
+    "build": {
+      "dependsOn": ["^build", "typecheck"],
+      "outputs": ["dist/**", ".tsbuildinfo"]
+    },
+    "lint": {},
+    "test": {
+      "dependsOn": ["build"],
+      "outputs": ["coverage/**", "test-results/**"]
+    },
+    "dev": {
+      "persistent": true,
+      "cache": false
+    },
+    "docker:build": {
+      "dependsOn": ["build"],
+      "cache": false
+    }
+  }
+}
