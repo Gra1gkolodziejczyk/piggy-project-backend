@@ -1,13 +1,13 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { drizzle, NeonDatabase } from 'drizzle-orm/neon-serverless';
+import { Pool } from '@neondatabase/serverless';
 import * as schema from '@app/contracts/database/schema';
 
 @Injectable()
 export class DrizzleService implements OnModuleInit, OnModuleDestroy {
-  public db: PostgresJsDatabase<typeof schema>;
-  private client: postgres.Sql;
+  public db: NeonDatabase<typeof schema>;
+  private pool: Pool;
 
   constructor(private configService: ConfigService) {}
 
@@ -18,21 +18,19 @@ export class DrizzleService implements OnModuleInit, OnModuleDestroy {
       throw new Error('DATABASE_URL is not defined in environment variables');
     }
 
-    // Configuration spécifique pour Neon.tech
-    this.client = postgres(connectionString, {
-      ssl: 'require', // ← Important pour Neon
-      max: 10,
-      idle_timeout: 20,
-      connect_timeout: 10,
+    // Pool WebSocket optimisé pour Neon avec support des transactions
+    this.pool = new Pool({
+      connectionString,
+      max: 10, // Nombre de connexions dans le pool
     });
 
-    this.db = drizzle(this.client, { schema });
+    this.db = drizzle(this.pool, { schema });
 
-    console.log('✅ Connected to Neon PostgreSQL database');
+    console.log('✅ Connected to Neon PostgreSQL database (WebSocket pool)');
   }
 
   async onModuleDestroy() {
-    await this.client.end();
+    await this.pool.end();
     console.log('👋 Disconnected from database');
   }
 }

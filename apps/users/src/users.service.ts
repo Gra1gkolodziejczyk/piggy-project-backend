@@ -30,8 +30,6 @@ export class UsersService {
       .update(users)
       .set({
         ...dto,
-        // On ne met pas updatedAt ici car il est géré automatiquement
-        // par le schema avec .$onUpdate(() => new Date())
       })
       .where(eq(users.id, id))
       .returning();

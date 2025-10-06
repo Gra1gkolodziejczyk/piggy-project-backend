@@ -4,7 +4,7 @@ import { UsersService } from './users.service';
 import { DrizzleModule } from '@app/contracts/drizzle/drizzle.module';
 
 @Module({
-  imports: [DrizzleModule],
+  imports: [DrizzleModule.forRoot()],
   controllers: [UsersController],
   providers: [UsersService],
 })

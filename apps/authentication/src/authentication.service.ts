@@ -62,11 +62,7 @@ export class AuthenticationService {
             id: users.id,
             email: users.email,
           });
-
-        // 2) Générer les tokens avec l'id
         const tokens = await this.getTokens(user.id, user.email);
-
-        // 3) Hash du refresh token + création du compte
         const refreshTokenHash = await this.hashData(tokens.refresh_token);
         const refreshTokenExpiresAt = new Date(
           Date.now() + 7 * 24 * 60 * 60 * 1000,
@@ -78,13 +74,11 @@ export class AuthenticationService {
           refreshToken: refreshTokenHash,
           refreshTokenExpiresAt,
         });
-
         return tokens;
       });
 
       return result;
     } catch (e: any) {
-      // Contrainte d'unicité email (code PostgreSQL)
       if (e.code === '23505' && e.constraint?.includes('email')) {
         throw new ForbiddenException('Email already registered');
       }
@@ -172,14 +166,8 @@ export class AuthenticationService {
 
   async getTokens(userId: string, email: string): Promise<Tokens> {
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(
-        { sub: userId, email },
-        { expiresIn: '24h' }, // 24 heures
-      ),
-      this.jwtService.signAsync(
-        { sub: userId, email },
-        { expiresIn: '7d' }, // 7 jours
-      ),
+      this.jwtService.signAsync({ sub: userId, email }, { expiresIn: '24h' }),
+      this.jwtService.signAsync({ sub: userId, email }, { expiresIn: '7d' }),
     ]);
 
     return {
@@ -192,7 +180,6 @@ export class AuthenticationService {
     try {
       const decoded = this.jwtService.verify(token);
 
-      // Chercher l'utilisateur dans la BDD en fonction du "sub" (userId)
       const result = await this.drizzle.db
         .select()
         .from(users)
