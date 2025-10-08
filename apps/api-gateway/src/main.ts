@@ -18,7 +18,10 @@ async function bootstrap() {
   );
 
   // CORS
-  app.enableCors();
+  app.enableCors({
+    origin: '*',
+    credentials: true,
+  });
 
   // Swagger
   const config = new DocumentBuilder()
@@ -32,10 +35,10 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   // Démarrage
-  const port = Number(process.env.API_GATEWAY_PORT) || 4000;
+  const port = Number(process.env.PORT) || 4000;
   const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1';
 
-  await app.listen(port, host);
+  await app.listen(port, '0.0.0.0');
 
   console.log(`🚀 API running on http://${host}:${port}`);
   console.log(`📚 Docs: http://${host}:${port}/api/docs`);
