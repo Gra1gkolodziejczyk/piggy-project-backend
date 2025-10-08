@@ -1,12 +1,12 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { drizzle } from 'drizzle-orm/node-postgres';
+import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as schema from '@app/contracts/database/schema';
 
 @Injectable()
 export class DrizzleService implements OnModuleInit, OnModuleDestroy {
-  public db: ReturnType<typeof drizzle>;
+  public db: NodePgDatabase<typeof schema>; // ← CHANGE ICI
   private pool: Pool;
 
   constructor(private configService: ConfigService) {}
