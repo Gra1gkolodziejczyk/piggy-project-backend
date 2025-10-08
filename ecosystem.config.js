@@ -10,6 +10,8 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
       },
+      error_file: '/dev/null',
+      out_file: '/dev/stdout',
     },
     {
       name: 'users',
@@ -21,6 +23,8 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
       },
+      error_file: '/dev/null',
+      out_file: '/dev/stdout',
     },
     {
       name: 'api-gateway',
@@ -32,6 +36,8 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
       },
+      error_file: '/dev/null',
+      out_file: '/dev/stdout',
     },
   ],
 };
