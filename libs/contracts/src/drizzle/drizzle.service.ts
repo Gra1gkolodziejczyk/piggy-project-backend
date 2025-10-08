@@ -1,13 +1,12 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { drizzle, NeonDatabase } from 'drizzle-orm/neon-serverless';
-import { Pool } from '@neondatabase/serverless';
+import { drizzle, NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import { neon } from '@neondatabase/serverless';
 import * as schema from '@app/contracts/database/schema';
 
 @Injectable()
-export class DrizzleService implements OnModuleInit, OnModuleDestroy {
-  public db: NeonDatabase<typeof schema>;
-  private pool: Pool;
+export class DrizzleService implements OnModuleInit {
+  public db: NeonHttpDatabase<typeof schema>;
 
   constructor(private configService: ConfigService) {}
 
@@ -18,15 +17,11 @@ export class DrizzleService implements OnModuleInit, OnModuleDestroy {
       throw new Error('DATABASE_URL is not defined in environment variables');
     }
 
-    this.pool = new Pool({
-      connectionString,
-      max: 10,
-    });
+    // Utilise le driver HTTP de Neon
+    const sql = neon(connectionString);
 
-    this.db = drizzle(this.pool, { schema });
-  }
+    this.db = drizzle(sql, { schema });
 
-  async onModuleDestroy() {
-    await this.pool.end();
+    console.log('✅ Drizzle connected to Neon via HTTP');
   }
 }
