@@ -18,10 +18,7 @@ async function bootstrap() {
   );
 
   // CORS
-  app.enableCors({
-    origin: '*',
-    credentials: true,
-  });
+  app.enableCors();
 
   // Swagger
   const config = new DocumentBuilder()
@@ -34,14 +31,14 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  // Démarrage
+  // CRITIQUE : Railway utilise PORT, pas API_GATEWAY_PORT
   const port = Number(process.env.PORT) || 4000;
-  const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1';
 
+  // CRITIQUE : Toujours écouter sur 0.0.0.0
   await app.listen(port, '0.0.0.0');
 
-  console.log(`🚀 API running on http://${host}:${port}`);
-  console.log(`📚 Docs: http://${host}:${port}/api/docs`);
+  console.log(`🚀 API running on port ${port}`);
+  console.log(`📚 Docs available at /api/docs`);
 }
 
 bootstrap();
