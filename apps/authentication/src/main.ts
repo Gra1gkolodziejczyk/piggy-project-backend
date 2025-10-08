@@ -6,7 +6,7 @@ import * as dotenv from 'dotenv';
 async function bootstrap() {
   dotenv.config();
   const host = process.env.AUTHENTICATION_HOST || '0.0.0.0';
-  const port = Number(process.env.AUTHENTICATION_PORT) || 4002;
+  const port = Number(process.env.AUTHENTICATION_PORT);
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AuthenticationModule,
     {

@@ -12,7 +12,7 @@ import { USERS } from '@app/contracts/users/users.client';
         transport: Transport.TCP,
         options: {
           host: process.env.USERS_HOST || '127.0.0.1',
-          port: Number(process.env.USERS_PORT) || 4000,
+          port: Number(process.env.USERS_PORT) || 4002,
         },
       },
     ]),

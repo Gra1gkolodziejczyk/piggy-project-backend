@@ -1,30 +1,17 @@
-# Dependencies
 node_modules
-pnpm-store
-
-# Build output
-/dist
-/coverage
-
-# VCS
-.git
-.gitignore
-
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# Env
+dist
+.pnpm-store
+npm-debug.log
+pnpm-debug.log
 .env
 .env.*
-
-# Docker
-# Ne pas exclure les Dockerfiles
-# docker-compose.yml peut être exclu du contexte
-
-docker-compose.yml
-
-# Misc
-*.tsbuildinfo
+.git
+.gitignore
+README.md
+.vscode
+.idea
+*.md
+coverage
+.nyc_output
+*.log
+.DS_Store

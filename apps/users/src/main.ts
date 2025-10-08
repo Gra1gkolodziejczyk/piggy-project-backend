@@ -6,7 +6,7 @@ import * as dotenv from 'dotenv';
 async function bootstrap() {
   dotenv.config();
   const host = process.env.USERS_HOST || '127.0.0.1';
-  const port = Number(process.env.USERS_PORT) || 4000;
+  const port = Number(process.env.USERS_PORT);
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     UsersModule,
     {

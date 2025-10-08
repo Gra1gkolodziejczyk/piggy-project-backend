@@ -12,7 +12,8 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  const port = Number(process.env.PORT) || 3000;
+  app.enableCors();
+  const port = Number(process.env.API_GATEWAY_PORT);
   await app.listen(port, '127.0.0.1');
 }
 bootstrap();

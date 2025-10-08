@@ -28,7 +28,7 @@ import { AccessTokenStrategy } from '@app/contracts/authentication/strategies';
         transport: Transport.TCP,
         options: {
           host: process.env.AUTHENTICATION_HOST || '127.0.0.1',
-          port: Number(process.env.AUTHENTICATION_PORT) || 4002,
+          port: Number(process.env.AUTHENTICATION_PORT) || 4001,
         },
       },
     ]),

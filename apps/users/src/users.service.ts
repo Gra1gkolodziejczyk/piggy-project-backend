@@ -41,7 +41,6 @@ export class UsersService {
     return user;
   }
 
-  // Hard delete (RGPD - droit à l'effacement total)
   async deleteUserById(id: string): Promise<void> {
     const result = await this.drizzle.db
       .delete(users)
@@ -51,18 +50,13 @@ export class UsersService {
     if (!result.length) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-
-    // L'Account sera automatiquement supprimé grâce au onDelete: 'cascade'
   }
 
-  // Soft delete (recommandé pour RGPD - conservation des logs)
   async softDeleteUserById(id: string): Promise<void> {
-    // Si tu as un champ isActive ou deletedAt dans ton schema
     const [user] = await this.drizzle.db
       .update(users)
       .set({
         isActive: false,
-        // deletedAt: new Date(), // si tu ajoutes ce champ
       })
       .where(eq(users.id, id))
       .returning({ id: users.id });
@@ -98,8 +92,6 @@ export class UsersService {
     return account;
   }
 
-  // Méthodes supplémentaires utiles
-
   async findUserByEmail(email: string): Promise<User | null> {
     const result = await this.drizzle.db
       .select()
@@ -108,13 +100,5 @@ export class UsersService {
       .limit(1);
 
     return result[0] || null;
-  }
-
-  async findAllUsers(includeInactive = false): Promise<User[]> {
-    if (includeInactive) {
-      return this.drizzle.db.select().from(users);
-    }
-
-    return this.drizzle.db.select().from(users).where(eq(users.isActive, true));
   }
 }
