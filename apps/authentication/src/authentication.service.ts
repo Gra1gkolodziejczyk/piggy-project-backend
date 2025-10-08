@@ -160,7 +160,7 @@ export class AuthenticationService {
     if (!data) {
       throw new Error('Data to hash cannot be empty.');
     }
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(Number(process.env.BCRYPT_ROUNDS));
     return bcrypt.hash(data, salt);
   }
 

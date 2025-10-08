@@ -4,63 +4,38 @@ services:
   api-gateway:
     build:
       context: .
-      dockerfile: apps/api-gateway/Dockerfile
-    container_name: api-gateway
+      dockerfile: Dockerfile.gateway
     ports:
-      - "4000:4000"
+      - "${PORT:-4000}:4000"
     environment:
       - NODE_ENV=production
-      - PORT=4000
-      - AUTHENTICATION_PORT=4001
-      - USERS_PORT=4002
+      - PORT=${PORT:-4000}
       - DATABASE_URL=${DATABASE_URL}
       - JWT_SECRET=${JWT_SECRET}
-      - JWT_EXPIRATION=${JWT_EXPIRATION:-3600}
-      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - AUTHENTICATION_HOST=localhost
+      - AUTHENTICATION_PORT=4001
+      - USERS_HOST=localhost
+      - USERS_PORT=4002
     depends_on:
-      authentication:
-        condition: service_healthy
-      users:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - microservices-network
+      - authentication
+      - users
+    network_mode: host
 
   authentication:
     build:
       context: .
-      dockerfile: apps/authentication/Dockerfile
-    container_name: authentication-service
-    ports:
-      - "4001:4001"
+      dockerfile: Dockerfile.authentication
     environment:
       - NODE_ENV=production
-      - PORT=4001
       - DATABASE_URL=${DATABASE_URL}
       - JWT_SECRET=${JWT_SECRET}
-      - JWT_EXPIRATION=${JWT_EXPIRATION:-3600}
-      - BCRYPT_ROUNDS=${BCRYPT_ROUNDS:-12}
-      - LOG_LEVEL=${LOG_LEVEL:-info}
-    restart: unless-stopped
-    networks:
-      - microservices-network
+    network_mode: host
 
   users:
     build:
       context: .
-      dockerfile: apps/users/Dockerfile
-    container_name: users-service
-    ports:
-      - "4002:4002"
+      dockerfile: Dockerfile.users
     environment:
       - NODE_ENV=production
-      - PORT=4002
       - DATABASE_URL=${DATABASE_URL}
-      - LOG_LEVEL=${LOG_LEVEL:-info}
-    restart: unless-stopped
-    networks:
-      - microservices-network
-
-networks:
-  microservices-network:
-    driver: bridge
+    network_mode: host
