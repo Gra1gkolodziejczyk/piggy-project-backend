@@ -1,22 +1,27 @@
 import { NestFactory } from '@nestjs/core';
-import { AuthenticationModule } from './authentication.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import * as dotenv from 'dotenv';
+import { AuthenticationModule } from './authentication.module';
 
 async function bootstrap() {
-  dotenv.config();
-  const host = process.env.AUTHENTICATION_HOST || '127.0.0.1';
-  const port = Number(process.env.AUTHENTICATION_PORT);
+  console.log('🔧 Starting Authentication Microservice...');
+  console.log('Port:', 4001);
+
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AuthenticationModule,
     {
       transport: Transport.TCP,
       options: {
-        host,
-        port,
+        host: '0.0.0.0',
+        port: 4001,
       },
     },
   );
+
   await app.listen();
+  console.log('✅ Authentication Microservice started on port 4001');
 }
-bootstrap();
+
+bootstrap().catch((error) => {
+  console.error('❌ Failed to start authentication service:', error);
+  process.exit(1);
+});
