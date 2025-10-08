@@ -24,12 +24,9 @@ export class DrizzleService implements OnModuleInit, OnModuleDestroy {
     });
 
     this.db = drizzle(this.pool, { schema });
-
-    console.log('✅ Connected to Neon PostgreSQL database (WebSocket pool)');
   }
 
   async onModuleDestroy() {
     await this.pool.end();
-    console.log('👋 Disconnected from database');
   }
 }
