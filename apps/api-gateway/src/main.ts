@@ -1,3 +1,8 @@
+import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ApiGatewayModule } from './api-gateway.module';
+
 async function bootstrap() {
   try {
     console.log('🔧 [1/5] Starting bootstrap...');
