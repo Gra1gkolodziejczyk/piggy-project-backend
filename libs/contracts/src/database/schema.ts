@@ -8,7 +8,6 @@ import {
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
-// Table User
 export const users = pgTable('User', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: varchar('name', { length: 255 }),
@@ -24,7 +23,6 @@ export const users = pgTable('User', {
   smsNotification: boolean('smsNotification').default(false),
 });
 
-// Table Account
 export const accounts = pgTable('Account', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('userId')
@@ -42,7 +40,6 @@ export const accounts = pgTable('Account', {
     .$onUpdate(() => new Date()),
 });
 
-// Relations
 export const usersRelations = relations(users, ({ one }) => ({
   account: one(accounts, {
     fields: [users.id],
@@ -57,14 +54,12 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
   }),
 }));
 
-// Types pour TypeScript
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 
 export type Account = typeof accounts.$inferSelect;
 export type NewAccount = typeof accounts.$inferInsert;
 
-// Types utiles pour les opérations
 export type UserWithAccount = User & {
   account?: Account | null;
 };

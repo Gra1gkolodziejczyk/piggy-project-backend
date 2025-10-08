@@ -18,10 +18,9 @@ export class DrizzleService implements OnModuleInit, OnModuleDestroy {
       throw new Error('DATABASE_URL is not defined in environment variables');
     }
 
-    // Pool WebSocket optimisé pour Neon avec support des transactions
     this.pool = new Pool({
       connectionString,
-      max: 10, // Nombre de connexions dans le pool
+      max: 10,
     });
 
     this.db = drizzle(this.pool, { schema });

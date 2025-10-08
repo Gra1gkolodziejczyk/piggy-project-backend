@@ -26,7 +26,6 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
     if (!userId) {
       throw new UnauthorizedException();
     }
-    // On garantit que request.user.id est toujours présent
     return {
       ...payload,
       id: userId,

@@ -34,7 +34,7 @@ export class AuthenticationService {
       throw new ForbiddenException('Invalid credentials');
     }
 
-    const passwordMatches = await bcrypt.compare(dto.password, user.password);
+    const passwordMatches = bcrypt.compare(dto.password, user.password);
 
     if (!passwordMatches) {
       throw new ForbiddenException('Invalid credentials');
@@ -99,7 +99,7 @@ export class AuthenticationService {
       throw new ForbiddenException('Access denied');
     }
 
-    const refreshTokenMatch = await bcrypt.compare(
+    const refreshTokenMatch = bcrypt.compare(
       refreshToken,
       account.refreshToken,
     );
