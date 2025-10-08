@@ -10,18 +10,11 @@ COPY nest-cli.json ./
 COPY apps ./apps
 COPY libs ./libs
 
-RUN pnpm install --frozen-lockfile
-RUN pnpm run build users
-
-RUN echo "=== Checking dist structure ===" && \
-    ls -laR dist/apps/users/ && \
-    echo "==========================="
+RUN pnpm install --frozen-lockfile && \
+    pnpm run build users && \
+    pnpm prune --prod
 
 ENV NODE_ENV=production
-
-RUN addgroup -g 1001 -S nodejs && adduser -S nestjs -u 1001
-RUN chown -R nestjs:nodejs /app
-USER nestjs
 
 EXPOSE 4002
 
