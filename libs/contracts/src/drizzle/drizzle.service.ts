@@ -6,7 +6,7 @@ import * as schema from '@app/contracts/database/schema';
 
 @Injectable()
 export class DrizzleService implements OnModuleInit, OnModuleDestroy {
-  public db: NodePgDatabase<typeof schema>; // ← CHANGE ICI
+  public db: NodePgDatabase<typeof schema>;
   private pool: Pool;
 
   constructor(private configService: ConfigService) {}

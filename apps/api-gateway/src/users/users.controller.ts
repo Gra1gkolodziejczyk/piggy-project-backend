@@ -2,12 +2,9 @@ import {
   Body,
   Controller,
   Get,
-  Param,
   Patch,
   Delete,
-  ParseUUIDPipe,
   UseGuards,
-  NotFoundException,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -16,14 +13,14 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
-  ApiParam,
   ApiBody,
 } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from '@app/contracts/users/updateUser.dto';
+import { UpdatePasswordDto } from '@app/contracts/users/updatePassword.dto';
 import { JwtAuthGuard } from '@app/contracts/authentication/guards/jwt-auth.guard';
-import { GetCurrentUser } from '@app/contracts/authentication/decorators/get-current-user.decorator';
 import { GetCurrentUserId } from '@app/contracts/authentication/decorators/get-current-user-id.decorator';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @ApiTags('Users')
@@ -36,7 +33,8 @@ export class UsersController {
   @Get('me')
   @ApiOperation({
     summary: 'Récupérer mon profil',
-    description: "Retourne les informations de l'utilisateur connecté",
+    description:
+      "Retourne les informations de l'utilisateur connecté (basé sur le token JWT)",
   })
   @ApiResponse({
     status: 200,
@@ -44,126 +42,109 @@ export class UsersController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Non authentifié',
+    description: 'Non authentifié - Token JWT invalide ou manquant',
   })
   @ApiResponse({
     status: 404,
     description: 'Utilisateur introuvable',
   })
-  findMe(@GetCurrentUserId() id: string, @GetCurrentUser() requester: any) {
-    return this.usersService.findUserById(id).pipe(
-      map((dbUser) => {
-        if (!dbUser) {
-          throw new NotFoundException(`User ${id} not found`);
-        }
-        return { user: dbUser, requester };
-      }),
-    );
+  getMyProfile(@GetCurrentUserId() userId: string) {
+    return this.usersService.findUserById(userId);
   }
 
-  @Patch(':id')
+  @Patch('me')
   @ApiOperation({
-    summary: 'Modifier un utilisateur',
-    description: "Met à jour les informations d'un utilisateur",
-  })
-  @ApiParam({
-    name: 'id',
-    description: "ID de l'utilisateur (UUID)",
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    summary: 'Modifier mon profil',
+    description:
+      'Met à jour les informations de mon compte utilisateur (basé sur le token JWT)',
   })
   @ApiBody({ type: UpdateUserDto })
   @ApiResponse({
     status: 200,
-    description: 'Utilisateur modifié avec succès',
+    description: 'Profil modifié avec succès',
   })
   @ApiResponse({
     status: 400,
-    description: 'Données invalides',
+    description: 'Données invalides - Vérifier le format des champs',
   })
   @ApiResponse({
     status: 401,
-    description: 'Non authentifié',
+    description: 'Non authentifié - Token JWT invalide ou manquant',
   })
   @ApiResponse({
     status: 404,
     description: 'Utilisateur introuvable',
   })
-  updateUserById(
-    @Param('id', new ParseUUIDPipe()) id: string,
+  updateMyProfile(
+    @GetCurrentUserId() userId: string,
     @Body() dto: UpdateUserDto,
   ) {
-    return this.usersService.updateUserById(dto, id);
+    // ✅ Ordre corrigé: userId d'abord, dto ensuite
+    return this.usersService.updateUserById(userId, dto);
   }
 
-  @Delete(':id')
+  @Delete('me')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
-    summary: 'Supprimer un utilisateur',
+    summary: 'Supprimer mon compte',
     description:
-      "Supprime définitivement un utilisateur (conforme RGPD - droit à l'oubli)",
-  })
-  @ApiParam({
-    name: 'id',
-    description: "ID de l'utilisateur (UUID)",
-    example: '123e4567-e89b-12d3-a456-426614174000',
+      "Supprime définitivement mon compte utilisateur (conforme RGPD - droit à l'oubli). Attention : cette action est irréversible !",
   })
   @ApiResponse({
     status: 204,
-    description: 'Utilisateur supprimé avec succès',
+    description: 'Compte supprimé avec succès',
   })
   @ApiResponse({
     status: 401,
-    description: 'Non authentifié',
+    description: 'Non authentifié - Token JWT invalide ou manquant',
   })
   @ApiResponse({
     status: 404,
     description: 'Utilisateur introuvable',
   })
-  deleteUserById(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.usersService.deleteUserById(id);
+  deleteMyAccount(@GetCurrentUserId() userId: string): Observable<void> {
+    return this.usersService.deleteUserById(userId);
   }
 
-  @Patch(':id/password')
+  @Patch('me/password')
   @ApiOperation({
-    summary: 'Changer le mot de passe',
-    description: "Met à jour le mot de passe d'un utilisateur",
+    summary: 'Changer mon mot de passe',
+    description: 'Met à jour mon mot de passe (basé sur le token JWT)',
   })
-  @ApiParam({
-    name: 'id',
-    description: "ID de l'utilisateur (UUID)",
-    example: '123e4567-e89b-12d3-a456-426614174000',
-  })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        password: {
-          type: 'string',
-          description: 'Nouveau mot de passe (min 8 caractères)',
-          example: 'NewPassword123!',
-          minLength: 8,
-        },
-      },
-      required: ['password'],
-    },
-  })
+  @ApiBody({ type: UpdatePasswordDto })
   @ApiResponse({
     status: 200,
     description: 'Mot de passe modifié avec succès',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Password updated successfully' },
+        updatedAt: { type: 'string', format: 'date-time' },
+      },
+    },
   })
   @ApiResponse({
     status: 400,
-    description: 'Mot de passe invalide',
+    description: 'Mot de passe invalide - Minimum 8 caractères requis',
   })
   @ApiResponse({
     status: 401,
-    description: 'Non authentifié',
+    description: 'Non authentifié - Token JWT invalide ou manquant',
   })
-  updateUserPasswordById(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() body: { password: string },
+  @ApiResponse({
+    status: 404,
+    description: 'Compte utilisateur introuvable',
+  })
+  updateMyPassword(
+    @GetCurrentUserId() userId: string,
+    @Body() dto: UpdatePasswordDto,
   ) {
-    const { password } = body;
-    return this.usersService.updateUserPasswordById(id, password);
+    // ✅ Utilisation correcte de map pour transformer l'Observable
+    return this.usersService.updateUserPasswordById(userId, dto.password).pipe(
+      map((result) => ({
+        message: 'Password updated successfully',
+        updatedAt: result.updatedAt,
+      })),
+    );
   }
 }

@@ -1,48 +1,96 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsEmail,
-  IsOptional,
   IsString,
+  IsEmail,
+  IsInt,
+  IsBoolean,
+  IsOptional,
   MinLength,
   MaxLength,
+  Min,
+  Max,
+  Matches,
 } from 'class-validator';
 
 export class UpdateUserDto {
-  @ApiProperty({
-    description: "Nom de l'utilisateur",
+  @ApiPropertyOptional({
+    description: "Nom complet de l'utilisateur",
     example: 'Jean Dupont',
-    required: false,
     minLength: 2,
-    maxLength: 100,
+    maxLength: 255,
   })
   @IsOptional()
   @IsString()
   @MinLength(2)
-  @MaxLength(100)
+  @MaxLength(255)
   name?: string;
 
-  @ApiProperty({
-    description: "Adresse email de l'utilisateur",
+  @ApiPropertyOptional({
+    description: 'Adresse email (doit être unique)',
     example: 'jean.dupont@example.com',
-    required: false,
-    format: 'email',
   })
   @IsOptional()
-  @IsEmail()
-  @IsString()
+  @IsEmail({}, { message: 'Email invalide' })
+  @MaxLength(255)
   email?: string;
 
-  @ApiProperty({
-    description: 'Nouveau mot de passe (minimum 6 caractères)',
-    example: 'Password123!',
-    required: false,
-    minLength: 6,
-    maxLength: 100,
-    format: 'password',
+  @ApiPropertyOptional({
+    description: "Âge de l'utilisateur",
+    example: 30,
+    minimum: 18,
+    maximum: 120,
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(18)
+  @Max(120)
+  age?: number;
+
+  @ApiPropertyOptional({
+    description: 'Numéro de téléphone (format international)',
+    example: '+33612345678',
   })
   @IsOptional()
   @IsString()
-  @MinLength(6)
-  @MaxLength(100)
-  password?: string;
+  @Matches(/^\+?[1-9]\d{1,14}$/, {
+    message: 'Numéro de téléphone invalide (format international requis)',
+  })
+  @MaxLength(50)
+  phoneNumber?: string;
+
+  @ApiPropertyOptional({
+    description: "URL de l'image de profil",
+    example: 'https://example.com/avatar.jpg',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  image?: string;
+
+  @ApiPropertyOptional({
+    description: 'Code langue (ISO 639-1)',
+    example: 'fr',
+    default: 'fr',
+  })
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-z]{2}$/, { message: 'Code langue invalide (ex: fr, en)' })
+  @MaxLength(10)
+  lang?: string;
+
+  @ApiPropertyOptional({
+    description: 'Activation des notifications par email',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  emailNotification?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Activation des notifications par SMS',
+    example: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  smsNotification?: boolean;
 }

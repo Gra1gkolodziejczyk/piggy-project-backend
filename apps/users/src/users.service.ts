@@ -9,6 +9,10 @@ import { users, accounts, User } from '@app/contracts/database/schema';
 export class UsersService {
   constructor(private readonly drizzle: DrizzleService) {}
 
+  /**
+   * Récupère un utilisateur par son ID
+   * @throws NotFoundException si l'utilisateur n'existe pas
+   */
   async findUserById(id: string): Promise<User> {
     const result = await this.drizzle.db
       .select()
@@ -25,8 +29,17 @@ export class UsersService {
     return user;
   }
 
-  async updateUserById(dto: UpdateUserDto, id: string): Promise<User> {
-    const [user] = await this.drizzle.db
+  /**
+   * Met à jour les informations d'un utilisateur
+   * @param id - ID de l'utilisateur
+   * @param dto - Données à mettre à jour
+   * @throws NotFoundException si l'utilisateur n'existe pas
+   */
+  async updateUserById(id: string, dto: UpdateUserDto): Promise<User> {
+    // Vérifier que l'utilisateur existe avant de tenter la mise à jour
+    await this.findUserById(id);
+
+    const [updatedUser] = await this.drizzle.db
       .update(users)
       .set({
         ...dto,
@@ -34,13 +47,18 @@ export class UsersService {
       .where(eq(users.id, id))
       .returning();
 
-    if (!user) {
+    if (!updatedUser) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    return user;
+    return updatedUser;
   }
 
+  /**
+   * Supprime définitivement un utilisateur (hard delete)
+   * Conforme RGPD - Droit à l'oubli
+   * @throws NotFoundException si l'utilisateur n'existe pas
+   */
   async deleteUserById(id: string): Promise<void> {
     const result = await this.drizzle.db
       .delete(users)
@@ -52,33 +70,23 @@ export class UsersService {
     }
   }
 
-  async softDeleteUserById(id: string): Promise<void> {
-    const [user] = await this.drizzle.db
-      .update(users)
-      .set({
-        isActive: false,
-      })
-      .where(eq(users.id, id))
-      .returning({ id: users.id });
-
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
-    }
-  }
-
+  /**
+   * Met à jour le mot de passe d'un utilisateur
+   * @throws NotFoundException si le compte n'existe pas
+   */
   async updateUserPasswordById(
-    id: string,
+    userId: string,
     password: string,
   ): Promise<{ id: string; userId: string; updatedAt: Date }> {
-    const hashed = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const [account] = await this.drizzle.db
       .update(accounts)
       .set({
-        password: hashed,
+        password: hashedPassword,
         updatedAt: new Date(),
       })
-      .where(eq(accounts.userId, id))
+      .where(eq(accounts.userId, userId))
       .returning({
         id: accounts.id,
         userId: accounts.userId,
@@ -86,12 +94,15 @@ export class UsersService {
       });
 
     if (!account) {
-      throw new NotFoundException(`Account for user ID ${id} not found`);
+      throw new NotFoundException(`Account for user ID ${userId} not found`);
     }
 
     return account;
   }
 
+  /**
+   * Recherche un utilisateur par son email
+   */
   async findUserByEmail(email: string): Promise<User | null> {
     const result = await this.drizzle.db
       .select()
