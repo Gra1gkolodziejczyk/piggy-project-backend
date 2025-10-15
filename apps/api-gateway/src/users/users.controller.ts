@@ -16,8 +16,8 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { UpdateUserDto } from '@app/contracts/users/updateUser.dto';
-import { UpdatePasswordDto } from '@app/contracts/users/updatePassword.dto';
+import { UpdateUserDto } from '@app/contracts/users/dto/updateUser.dto';
+import { UpdatePasswordDto } from '@app/contracts/users/dto/updatePassword.dto';
 import { JwtAuthGuard } from '@app/contracts/authentication/guards/jwt-auth.guard';
 import { GetCurrentUserId } from '@app/contracts/authentication/decorators/get-current-user-id.decorator';
 import { Observable } from 'rxjs';

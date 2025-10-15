@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
 import { USERS_PATTERNS } from '@app/contracts/users/users.pattern';
-import { UpdateUserDto } from '@app/contracts/users/updateUser.dto';
+import { UpdateUserDto } from '@app/contracts/users/dto/updateUser.dto';
 import { User } from '@app/contracts/database/schema';
 
 @Injectable()

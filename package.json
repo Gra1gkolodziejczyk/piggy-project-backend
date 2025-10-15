@@ -8,8 +8,6 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
     "docker:build": "docker-compose build",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
@@ -18,7 +16,15 @@
     "drizzle:generate": "dotenv -e .env -- drizzle-kit generate",
     "drizzle:migrate": "dotenv -e .env -- drizzle-kit migrate",
     "drizzle:push": "dotenv -e .env -- drizzle-kit push",
-    "drizzle:studio": "dotenv -e .env -- drizzle-kit studio"
+    "drizzle:studio": "dotenv -e .env -- drizzle-kit studio",
+    "start:gateway": "nest start api-gateway --watch",
+    "start:auth": "nest start authentication --watch",
+    "start:users": "nest start users --watch",
+    "start:banks": "nest start banks --watch",
+    "start:budgets": "nest start budgets --watch",
+    "start:expenses": "nest start expenses --watch",
+    "start:events": "nest start events --watch",
+    "start:incomes": "nest start incomes --watch"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
