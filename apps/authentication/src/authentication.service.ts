@@ -29,12 +29,9 @@ export class AuthenticationService {
   /**
    * Inscription d'un nouvel utilisateur avec création automatique du compte bancaire
    */
-  async signUp(dto: SignUpDto): Promise<{
-    user: Omit<User, 'stripeId'>;
-    account: Omit<Account, 'password' | 'refreshToken'>;
-    bank: Bank;
-    tokens: { accessToken: string; refreshToken: string };
-  }> {
+  async signUp(
+    dto: SignUpDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const existingUser = await this.drizzle.db
       .select()
       .from(users)
@@ -101,13 +98,8 @@ export class AuthenticationService {
     } = result.newAccount;
 
     return {
-      user: userWithoutStripe,
-      account: accountWithoutSensitive,
-      bank: result.newBank,
-      tokens: {
-        accessToken,
-        refreshToken,
-      },
+      accessToken,
+      refreshToken,
     };
   }
 

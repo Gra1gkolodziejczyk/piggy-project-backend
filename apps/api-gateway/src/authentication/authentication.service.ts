@@ -10,14 +10,14 @@ export class AuthenticationService {
   constructor(@Inject(AUTHENTICATION) private readonly client: ClientProxy) {}
 
   signIn(loginDto: SignInDto) {
-    return this.client.send(AUTHENTICATION_PATTERNS.LOGIN, loginDto);
+    return this.client.send(AUTHENTICATION_PATTERNS.SIGN_IN, loginDto);
   }
 
   signUp(registerDto: SignUpDto) {
-    return this.client.send(AUTHENTICATION_PATTERNS.REGISTER, registerDto);
+    return this.client.send(AUTHENTICATION_PATTERNS.SIGN_UP, registerDto);
   }
 
   signOut(userId: string) {
-    return this.client.send(AUTHENTICATION_PATTERNS.LOGOUT, userId);
+    return this.client.send(AUTHENTICATION_PATTERNS.SIGN_OUT, userId);
   }
 }
