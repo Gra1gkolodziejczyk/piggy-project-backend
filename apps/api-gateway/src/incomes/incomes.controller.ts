@@ -237,27 +237,6 @@ export class IncomesController {
     return this.incomesService.findOne(userId, incomeId);
   }
 
-  @Get('all-archived')
-  @ApiOperation({
-    summary: 'Récupérer tous mes revenus (actifs + archivés)',
-    description:
-      "Retourne l'historique complet de tous vos revenus, incluant les revenus archivés.\n\n",
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Non authentifié - Token JWT invalide ou manquant',
-    schema: {
-      type: 'object',
-      properties: {
-        statusCode: { type: 'number', example: 401 },
-        message: { type: 'string', example: 'Unauthorized' },
-      },
-    },
-  })
-  findAllIncludingArchived(@GetCurrentUserId() userId: string) {
-    return this.incomesService.findAllIncludingArchived(userId);
-  }
-
   /**
    * Modifier un revenu
    *

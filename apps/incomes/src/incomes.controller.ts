@@ -78,11 +78,6 @@ export class IncomesController {
     return this.incomesService.findOne(payload.userId, payload.incomeId);
   }
 
-  @MessagePattern(INCOMES_PATTERNS.FIND_ALL_WITH_ARCHIVED)
-  findAllIncludingArchived(@Payload() userId: string) {
-    return this.incomesService.findAllIncludingArchived(userId);
-  }
-
   /**
    * Mettre à jour un revenu
    *

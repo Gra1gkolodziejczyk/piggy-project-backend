@@ -99,10 +99,9 @@ export class AuthenticationService {
   /**
    * Connexion d'un utilisateur existant
    */
-  async signIn(dto: SignInDto): Promise<{
-    user: Omit<User, 'stripeId'>;
-    tokens: { accessToken: string; refreshToken: string };
-  }> {
+  async signIn(
+    dto: SignInDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const [user] = await this.drizzle.db
       .select()
       .from(users)
@@ -154,14 +153,9 @@ export class AuthenticationService {
       })
       .where(eq(accounts.userId, user.id));
 
-    const { stripeId, ...userWithoutStripe } = user;
-
     return {
-      user: userWithoutStripe,
-      tokens: {
-        accessToken,
-        refreshToken,
-      },
+      accessToken,
+      refreshToken,
     };
   }
 

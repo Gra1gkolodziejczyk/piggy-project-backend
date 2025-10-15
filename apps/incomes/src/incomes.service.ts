@@ -131,26 +131,6 @@ export class IncomesService {
   }
 
   /**
-   * Récupérer TOUS les revenus (actifs + archivés)
-   */
-  async findAllIncludingArchived(userId: string): Promise<Income[]> {
-    this.logger.log(
-      `Fetching ALL incomes (including archived) for user ${userId}`,
-    );
-
-    const allIncomes = await this.drizzle.db
-      .select()
-      .from(incomes)
-      .where(eq(incomes.userId, userId));
-
-    this.logger.log(
-      `Found ${allIncomes.length} total incomes (active + archived) for user ${userId}`,
-    );
-
-    return allIncomes;
-  }
-
-  /**
    * Mettre à jour un revenu
    * @param userId - ID de l'utilisateur
    * @param incomeId - ID du revenu à modifier

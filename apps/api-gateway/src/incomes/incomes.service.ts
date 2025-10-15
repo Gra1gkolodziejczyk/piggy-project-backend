@@ -29,13 +29,6 @@ export class IncomesService {
     });
   }
 
-  findAllIncludingArchived(userId: string): Observable<any> {
-    return this.incomesClient.send(
-      INCOMES_PATTERNS.FIND_ALL_WITH_ARCHIVED,
-      userId,
-    );
-  }
-
   update(
     userId: string,
     incomeId: string,
