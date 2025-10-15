@@ -8,14 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { eq } from 'drizzle-orm';
 import * as bcrypt from 'bcrypt';
 import { DrizzleService } from '@app/contracts/drizzle/drizzle.service';
-import {
-  users,
-  accounts,
-  banks,
-  User,
-  Account,
-  Bank,
-} from '@app/contracts/database/schema';
+import { users, accounts, banks, User } from '@app/contracts/database/schema';
 import { SignUpDto } from '@app/contracts/authentication/dto/signup.dto';
 import { SignInDto } from '@app/contracts/authentication/dto/signin.dto';
 

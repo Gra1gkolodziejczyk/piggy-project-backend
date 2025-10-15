@@ -72,6 +72,60 @@
       "compilerOptions": {
         "tsConfigPath": "libs/contracts/tsconfig.lib.json"
       }
+    },
+    "finances": {
+      "type": "application",
+      "root": "apps/finances",
+      "entryFile": "main",
+      "sourceRoot": "apps/finances/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/finances/tsconfig.app.json"
+      }
+    },
+    "expenses": {
+      "type": "application",
+      "root": "apps/expenses",
+      "entryFile": "main",
+      "sourceRoot": "apps/expenses/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/expenses/tsconfig.app.json"
+      }
+    },
+    "budgets": {
+      "type": "application",
+      "root": "apps/budgets",
+      "entryFile": "main",
+      "sourceRoot": "apps/budgets/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/budgets/tsconfig.app.json"
+      }
+    },
+    "events": {
+      "type": "application",
+      "root": "apps/events",
+      "entryFile": "main",
+      "sourceRoot": "apps/events/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/events/tsconfig.app.json"
+      }
+    },
+    "banks": {
+      "type": "application",
+      "root": "apps/banks",
+      "entryFile": "main",
+      "sourceRoot": "apps/banks/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/banks/tsconfig.app.json"
+      }
+    },
+    "incomes": {
+      "type": "application",
+      "root": "apps/incomes",
+      "entryFile": "main",
+      "sourceRoot": "apps/incomes/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/incomes/tsconfig.app.json"
+      }
     }
   }
 }
