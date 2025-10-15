@@ -10,7 +10,7 @@ import { EventsService } from './events.service';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    DrizzleModule,
+    DrizzleModule.forRoot(),
   ],
   controllers: [EventsController],
   providers: [EventsService],

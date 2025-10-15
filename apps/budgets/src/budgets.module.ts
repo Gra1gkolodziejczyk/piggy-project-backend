@@ -10,7 +10,7 @@ import { BudgetsService } from './budgets.service';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    DrizzleModule,
+    DrizzleModule.forRoot(),
   ],
   controllers: [BudgetsController],
   providers: [BudgetsService],

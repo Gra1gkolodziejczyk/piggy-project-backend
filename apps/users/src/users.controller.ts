@@ -2,7 +2,7 @@ import { Controller } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { USERS_PATTERNS } from '@app/contracts/users/users.pattern';
-import { UpdateUserDto } from '@app/contracts/users/updateUser.dto';
+import { UpdateUserDto } from '@app/contracts/users/dto/updateUser.dto';
 import { User } from '@app/contracts/database/schema';
 
 @Controller()
@@ -19,7 +19,6 @@ export class UsersController {
     @Payload() payload: { id: string; dto: UpdateUserDto },
   ): Promise<User> {
     const { id, dto } = payload;
-    // ✅ Ordre corrigé: id d'abord, dto ensuite
     return this.usersService.updateUserById(id, dto);
   }
 

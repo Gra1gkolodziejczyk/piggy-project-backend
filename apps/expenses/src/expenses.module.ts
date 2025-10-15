@@ -10,7 +10,7 @@ import { ExpensesService } from './expenses.service';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    DrizzleModule,
+    DrizzleModule.forRoot(),
   ],
   controllers: [ExpensesController],
   providers: [ExpensesService],

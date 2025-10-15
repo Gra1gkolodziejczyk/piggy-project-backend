@@ -10,7 +10,7 @@ import { BanksService } from './banks.service';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    DrizzleModule,
+    DrizzleModule.forRoot(),
   ],
   controllers: [BanksController],
   providers: [BanksService],

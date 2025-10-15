@@ -10,9 +10,9 @@ import { IncomesService } from './incomes.service';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    DrizzleModule,
+    DrizzleModule.forRoot(),
   ],
   controllers: [IncomesController],
   providers: [IncomesService],
 })
-export class BanksModule {}
+export class IncomesModule {}
