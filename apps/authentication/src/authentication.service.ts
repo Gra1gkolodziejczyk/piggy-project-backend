@@ -1,216 +1,266 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
-import { eq } from 'drizzle-orm';
-import { Tokens } from '@app/contracts/authentication/token.type';
-import { LoginDto } from '@app/contracts/authentication/login.dto';
-import { RegisterDto } from '@app/contracts/authentication/register.dto';
+import {
+  Injectable,
+  ConflictException,
+  UnauthorizedException,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { eq } from 'drizzle-orm';
+import * as bcrypt from 'bcrypt';
 import { DrizzleService } from '@app/contracts/drizzle/drizzle.service';
-import { users, accounts, User } from '@app/contracts/database/schema';
+import {
+  users,
+  accounts,
+  banks,
+  User,
+  Account,
+  Bank,
+} from '@app/contracts/database/schema';
+import { SignUpDto } from '@app/contracts/authentication/dto/signup.dto';
+import { SignInDto } from '@app/contracts/authentication/dto/signin.dto';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
-    private drizzle: DrizzleService,
-    private jwtService: JwtService,
+    private readonly drizzle: DrizzleService,
+    private readonly jwtService: JwtService,
   ) {}
 
-  async signIn(dto: LoginDto): Promise<Tokens> {
-    // Récupérer l'utilisateur avec son compte
-    const result = await this.drizzle.db
-      .select({
-        id: users.id,
-        email: users.email,
-        password: accounts.password,
-      })
+  /**
+   * Inscription d'un nouvel utilisateur avec création automatique du compte bancaire
+   */
+  async signUp(dto: SignUpDto): Promise<{
+    user: Omit<User, 'stripeId'>;
+    account: Omit<Account, 'password' | 'refreshToken'>;
+    bank: Bank;
+    tokens: { accessToken: string; refreshToken: string };
+  }> {
+    const existingUser = await this.drizzle.db
+      .select()
       .from(users)
-      .leftJoin(accounts, eq(users.id, accounts.userId))
       .where(eq(users.email, dto.email))
       .limit(1);
 
-    const user = result[0];
-
-    if (!user || !user.password) {
-      throw new ForbiddenException('Invalid credentials');
+    if (existingUser.length > 0) {
+      throw new ConflictException('Email already exists');
     }
 
-    const passwordMatches = bcrypt.compare(dto.password, user.password);
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-    if (!passwordMatches) {
-      throw new ForbiddenException('Invalid credentials');
-    }
-
-    const tokens = await this.getTokens(user.id, user.email);
-    await this.updateRefreshToken(user.id, tokens.refresh_token);
-
-    return tokens;
-  }
-
-  async signUp(dto: RegisterDto): Promise<Tokens> {
-    const passwordHash = await this.hashData(dto.password);
-
-    try {
-      const result = await this.drizzle.db.transaction(async (tx) => {
-        // 1) Créer l'utilisateur pour récupérer son id
-        const [user] = await tx
-          .insert(users)
-          .values({
-            name: dto.name,
-            email: dto.email,
-          })
-          .returning({
-            id: users.id,
-            email: users.email,
-          });
-        const tokens = await this.getTokens(user.id, user.email);
-        const refreshTokenHash = await this.hashData(tokens.refresh_token);
-        const refreshTokenExpiresAt = new Date(
-          Date.now() + 7 * 24 * 60 * 60 * 1000,
-        );
-
-        await tx.insert(accounts).values({
-          userId: user.id,
-          password: passwordHash,
-          refreshToken: refreshTokenHash,
-          refreshTokenExpiresAt,
-        });
-        return tokens;
-      });
-
-      return result;
-    } catch (e: any) {
-      if (e.code === '23505' && e.constraint?.includes('email')) {
-        throw new ForbiddenException('Email already registered');
-      }
-      throw e;
-    }
-  }
-
-  async refreshToken(userId: string, refreshToken: string): Promise<Tokens> {
-    const result = await this.drizzle.db
-      .select()
-      .from(accounts)
-      .where(eq(accounts.userId, userId))
-      .limit(1);
-
-    const account = result[0];
-
-    if (!account || !account.refreshToken) {
-      throw new ForbiddenException('Access denied');
-    }
-
-    const refreshTokenMatch = bcrypt.compare(
-      refreshToken,
-      account.refreshToken,
+    const refreshToken = this.jwtService.sign(
+      { email: dto.email },
+      { expiresIn: '7d' },
     );
 
-    if (!refreshTokenMatch) {
-      throw new ForbiddenException('Access denied');
-    }
+    const refreshTokenExpiresAt = new Date();
+    refreshTokenExpiresAt.setDate(refreshTokenExpiresAt.getDate() + 7);
 
-    const user = await this.findUserById(userId);
-    const tokens = await this.getTokens(user.id, user.email);
-    await this.updateRefreshToken(user.id, tokens.refresh_token);
+    const result = await this.drizzle.db.transaction(async (tx) => {
+      const [newUser] = await tx
+        .insert(users)
+        .values({
+          email: dto.email,
+          name: dto.name,
+          emailVerified: false,
+          isActive: true,
+        })
+        .returning();
 
-    return tokens;
-  }
+      const [newAccount] = await tx
+        .insert(accounts)
+        .values({
+          userId: newUser.id,
+          password: hashedPassword,
+          refreshToken,
+          refreshTokenExpiresAt,
+        })
+        .returning();
 
-  async signOut(userId: string): Promise<void> {
-    await this.drizzle.db
-      .update(accounts)
-      .set({
-        refreshToken: null,
-        updatedAt: new Date(),
-      })
-      .where(eq(accounts.userId, userId));
-  }
+      const [newBank] = await tx
+        .insert(banks)
+        .values({
+          userId: newUser.id,
+          balance: '0.00',
+          currency: 'EUR',
+        })
+        .returning();
 
-  async findUserById(userId: string): Promise<User> {
-    const result = await this.drizzle.db
-      .select()
-      .from(users)
-      .where(eq(users.id, userId))
-      .limit(1);
+      return { newUser, newAccount, newBank };
+    });
 
-    const user = result[0];
+    const accessToken = this.jwtService.sign({
+      sub: result.newUser.id,
+      email: result.newUser.email,
+    });
 
-    if (!user) {
-      throw new ForbiddenException('User not found');
-    }
-
-    return user;
-  }
-
-  async updateRefreshToken(
-    userId: string,
-    refreshToken: string,
-  ): Promise<void> {
-    const hash = await this.hashData(refreshToken);
-
-    await this.drizzle.db
-      .update(accounts)
-      .set({
-        refreshToken: hash,
-        updatedAt: new Date(),
-      })
-      .where(eq(accounts.userId, userId));
-  }
-
-  async hashData(data: string): Promise<string> {
-    if (!data) {
-      throw new Error('Data to hash cannot be empty.');
-    }
-    const salt = await bcrypt.genSalt(Number(process.env.BCRYPT_ROUNDS));
-    return bcrypt.hash(data, salt);
-  }
-
-  async getTokens(userId: string, email: string): Promise<Tokens> {
-    const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync({ sub: userId, email }, { expiresIn: '24h' }),
-      this.jwtService.signAsync({ sub: userId, email }, { expiresIn: '7d' }),
-    ]);
+    const { stripeId, ...userWithoutStripe } = result.newUser;
+    const {
+      password,
+      refreshToken: _,
+      ...accountWithoutSensitive
+    } = result.newAccount;
 
     return {
-      access_token: accessToken,
-      refresh_token: refreshToken,
+      user: userWithoutStripe,
+      account: accountWithoutSensitive,
+      bank: result.newBank,
+      tokens: {
+        accessToken,
+        refreshToken,
+      },
     };
   }
 
-  async validateAccessToken(token: string): Promise<User> {
-    try {
-      const decoded = this.jwtService.verify(token);
+  /**
+   * Connexion d'un utilisateur existant
+   */
+  async signIn(dto: SignInDto): Promise<{
+    user: Omit<User, 'stripeId'>;
+    tokens: { accessToken: string; refreshToken: string };
+  }> {
+    const [user] = await this.drizzle.db
+      .select()
+      .from(users)
+      .where(eq(users.email, dto.email))
+      .limit(1);
 
-      const result = await this.drizzle.db
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (!user.isActive) {
+      throw new UnauthorizedException('Account is deactivated');
+    }
+
+    const [account] = await this.drizzle.db
+      .select()
+      .from(accounts)
+      .where(eq(accounts.userId, user.id))
+      .limit(1);
+
+    if (!account) {
+      throw new NotFoundException('Account not found');
+    }
+
+    const isPasswordValid = bcrypt.compare(dto.password, account.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const accessToken = this.jwtService.sign({
+      sub: user.id,
+      email: user.email,
+    });
+
+    const refreshToken = this.jwtService.sign(
+      { sub: user.id, email: user.email },
+      { expiresIn: '7d' },
+    );
+
+    const refreshTokenExpiresAt = new Date();
+    refreshTokenExpiresAt.setDate(refreshTokenExpiresAt.getDate() + 7);
+
+    await this.drizzle.db
+      .update(accounts)
+      .set({
+        refreshToken,
+        refreshTokenExpiresAt,
+        updatedAt: new Date(),
+      })
+      .where(eq(accounts.userId, user.id));
+
+    const { stripeId, ...userWithoutStripe } = user;
+
+    return {
+      user: userWithoutStripe,
+      tokens: {
+        accessToken,
+        refreshToken,
+      },
+    };
+  }
+
+  /**
+   * Rafraîchir l'access token avec le refresh token
+   */
+  async refreshToken(refreshToken: string): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    try {
+      const payload = this.jwtService.verify(refreshToken);
+
+      const [account] = await this.drizzle.db
         .select()
-        .from(users)
-        .where(eq(users.id, decoded.sub))
+        .from(accounts)
+        .where(eq(accounts.refreshToken, refreshToken))
         .limit(1);
 
-      const user = result[0];
-
-      if (!user) {
-        throw new ForbiddenException('Invalid token or user not found');
+      if (!account) {
+        throw new UnauthorizedException('Invalid refresh token');
       }
 
-      return user;
+      if (new Date() > account.refreshTokenExpiresAt) {
+        throw new UnauthorizedException('Refresh token expired');
+      }
+
+      const [user] = await this.drizzle.db
+        .select()
+        .from(users)
+        .where(eq(users.id, account.userId))
+        .limit(1);
+
+      if (!user || !user.isActive) {
+        throw new UnauthorizedException('User not found or inactive');
+      }
+
+      const newAccessToken = this.jwtService.sign({
+        sub: user.id,
+        email: user.email,
+      });
+
+      const newRefreshToken = this.jwtService.sign(
+        { sub: user.id, email: user.email },
+        { expiresIn: '7d' },
+      );
+
+      const newRefreshTokenExpiresAt = new Date();
+      newRefreshTokenExpiresAt.setDate(newRefreshTokenExpiresAt.getDate() + 7);
+
+      await this.drizzle.db
+        .update(accounts)
+        .set({
+          refreshToken: newRefreshToken,
+          refreshTokenExpiresAt: newRefreshTokenExpiresAt,
+          updatedAt: new Date(),
+        })
+        .where(eq(accounts.userId, user.id));
+
+      return {
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+      };
     } catch (error) {
-      throw new ForbiddenException('Invalid or expired token');
+      throw new UnauthorizedException('Invalid or expired refresh token');
     }
   }
 
-  async getUserById(userId: string): Promise<User> {
-    const result = await this.drizzle.db
-      .select()
-      .from(users)
-      .where(eq(users.id, userId))
-      .limit(1);
+  /**
+   * Déconnexion - Invalide le refresh token
+   */
+  async signOut(userId: string): Promise<void> {
+    const invalidRefreshToken = this.jwtService.sign(
+      { invalidated: true },
+      { expiresIn: '1s' },
+    );
 
-    const user = result[0];
-
-    if (!user) {
-      throw new Error(`User with ID ${userId} not found`);
-    }
-
-    return user;
+    await this.drizzle.db
+      .update(accounts)
+      .set({
+        refreshToken: invalidRefreshToken,
+        refreshTokenExpiresAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(accounts.userId, userId));
   }
 }

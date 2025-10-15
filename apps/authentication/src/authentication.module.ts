@@ -2,15 +2,18 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthenticationController } from './authentication.controller';
 import { AuthenticationService } from './authentication.service';
-import * as dotenv from 'dotenv';
 import { DrizzleModule } from '@app/contracts/drizzle/drizzle.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
     DrizzleModule.forRoot(),
     JwtModule.registerAsync({
       useFactory: () => {
-        dotenv.config();
         const secret = process.env.JWT_SECRET;
         if (!secret) {
           throw new Error('JWT_SECRET is not set');

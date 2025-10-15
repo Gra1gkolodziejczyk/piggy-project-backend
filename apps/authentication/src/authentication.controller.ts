@@ -1,30 +1,31 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
-import { MessagePattern } from '@nestjs/microservices';
-import { Tokens } from '@app/contracts/authentication/token.type';
-import { LoginDto } from '@app/contracts/authentication/login.dto';
-import { RegisterDto } from '@app/contracts/authentication/register.dto';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AUTHENTICATION_PATTERNS } from '@app/contracts/authentication/authentication.pattern';
+import { SignUpDto } from '@app/contracts/authentication/dto/signup.dto';
+import { SignInDto } from '@app/contracts/authentication/dto/signin.dto';
 
 @Controller('auth')
 export class AuthenticationController {
   constructor(private readonly authenticationService: AuthenticationService) {}
 
-  @Post('/signin')
-  @MessagePattern(AUTHENTICATION_PATTERNS.LOGIN)
-  signIn(@Body() dto: LoginDto): Promise<Tokens> {
-    return this.authenticationService.signIn(dto);
-  }
-
-  @Post('/signup')
-  @MessagePattern(AUTHENTICATION_PATTERNS.REGISTER)
-  signUp(@Body() dto: RegisterDto): Promise<Tokens> {
+  @MessagePattern(AUTHENTICATION_PATTERNS.SIGN_UP)
+  async signUp(@Payload() dto: SignUpDto) {
     return this.authenticationService.signUp(dto);
   }
 
-  @Post('/signout')
-  @MessagePattern(AUTHENTICATION_PATTERNS.LOGOUT)
-  signOut(@Body('userId') userId: string) {
+  @MessagePattern(AUTHENTICATION_PATTERNS.SIGN_IN)
+  async signIn(@Payload() dto: SignInDto) {
+    return this.authenticationService.signIn(dto);
+  }
+
+  @MessagePattern(AUTHENTICATION_PATTERNS.REFRESH_TOKEN)
+  async refreshToken(@Payload() refreshToken: string) {
+    return this.authenticationService.refreshToken(refreshToken);
+  }
+
+  @MessagePattern(AUTHENTICATION_PATTERNS.SIGN_OUT)
+  async signOut(@Payload() userId: string) {
     return this.authenticationService.signOut(userId);
   }
 }

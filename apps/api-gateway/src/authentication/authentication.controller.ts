@@ -1,8 +1,8 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AuthenticationService } from './authentication.service';
-import { LoginDto } from '@app/contracts/authentication/login.dto';
-import { RegisterDto } from '@app/contracts/authentication/register.dto';
+import { SignInDto } from '@app/contracts/authentication/dto/signin.dto';
+import { SignUpDto } from '@app/contracts/authentication/dto/signup.dto';
 import { GetCurrentUserId } from '@app/contracts/authentication/decorators/get-current-user-id.decorator';
 
 @ApiTags('Authentication')
@@ -17,7 +17,7 @@ export class AuthenticationController {
     description:
       'Authentifie un utilisateur avec son email et mot de passe, retourne un token JWT',
   })
-  @ApiBody({ type: LoginDto })
+  @ApiBody({ type: SignInDto })
   @ApiResponse({
     status: 200,
     description: 'Connexion réussie - Token JWT retourné',
@@ -50,7 +50,7 @@ export class AuthenticationController {
     status: 400,
     description: 'Données de requête invalides',
   })
-  signIn(@Body() dto: LoginDto) {
+  signIn(@Body() dto: SignInDto) {
     return this.authenticationService.signIn(dto);
   }
 
@@ -61,7 +61,7 @@ export class AuthenticationController {
     description:
       'Enregistre un nouvel utilisateur et retourne un token JWT. Conforme RGPD.',
   })
-  @ApiBody({ type: RegisterDto })
+  @ApiBody({ type: SignUpDto })
   @ApiResponse({
     status: 201,
     description: 'Compte créé avec succès',
@@ -94,7 +94,7 @@ export class AuthenticationController {
     status: 500,
     description: 'Erreur serveur',
   })
-  signUp(@Body() dto: RegisterDto) {
+  signUp(@Body() dto: SignUpDto) {
     return this.authenticationService.signUp(dto);
   }
 

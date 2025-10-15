@@ -1,5 +1,6 @@
 export const AUTHENTICATION_PATTERNS = {
-  LOGIN: 'authentication.login',
-  REGISTER: 'authentication.register',
-  LOGOUT: 'authentication.logout',
+  SIGN_IN: 'authentication.login',
+  SIGN_UP: 'authentication.register',
+  SIGN_OUT: 'authentication.logout',
+  REFRESH_TOKEN: 'authentication.refreshToken',
 };

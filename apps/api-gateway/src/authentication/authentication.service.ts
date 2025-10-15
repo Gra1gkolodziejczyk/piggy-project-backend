@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { LoginDto } from '@app/contracts/authentication/login.dto';
-import { RegisterDto } from '@app/contracts/authentication/register.dto';
+import { SignInDto } from '@app/contracts/authentication/dto/signin.dto';
+import { SignUpDto } from '@app/contracts/authentication/dto/signup.dto';
 import { AUTHENTICATION_PATTERNS } from '@app/contracts/authentication/authentication.pattern';
 import { AUTHENTICATION } from '@app/contracts/authentication/authentication.client';
 
@@ -9,11 +9,11 @@ import { AUTHENTICATION } from '@app/contracts/authentication/authentication.cli
 export class AuthenticationService {
   constructor(@Inject(AUTHENTICATION) private readonly client: ClientProxy) {}
 
-  signIn(loginDto: LoginDto) {
+  signIn(loginDto: SignInDto) {
     return this.client.send(AUTHENTICATION_PATTERNS.LOGIN, loginDto);
   }
 
-  signUp(registerDto: RegisterDto) {
+  signUp(registerDto: SignUpDto) {
     return this.client.send(AUTHENTICATION_PATTERNS.REGISTER, registerDto);
   }
 
