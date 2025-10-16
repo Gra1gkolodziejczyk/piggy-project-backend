@@ -101,7 +101,7 @@ export class AuthenticationService {
    */
   async signIn(
     dto: SignInDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<{ user: User, accessToken: string; refreshToken: string }> {
     const [user] = await this.drizzle.db
       .select()
       .from(users)
@@ -154,6 +154,7 @@ export class AuthenticationService {
       .where(eq(accounts.userId, user.id));
 
     return {
+      user: user,
       accessToken,
       refreshToken,
     };

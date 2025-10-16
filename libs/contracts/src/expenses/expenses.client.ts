@@ -1,1 +1,1 @@
-export const EXPENSES = 'EXPENSES_CLIENT';
+export const EXPENSES = 'EXPENSES_SERVICE';
