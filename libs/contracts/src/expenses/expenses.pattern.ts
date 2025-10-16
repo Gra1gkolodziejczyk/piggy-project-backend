@@ -4,5 +4,5 @@ export const EXPENSES_PATTERNS = {
   FIND_ONE: 'expenses.findOne',
   UPDATE: 'expenses.update',
   DELETE: 'expenses.delete',
-  FIND_BY_BUDGET: 'expenses.findByBudget',
+  HARD_DELETE: 'expenses.hardDelete',
 };

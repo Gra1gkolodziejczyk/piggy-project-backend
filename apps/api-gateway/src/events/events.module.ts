@@ -20,4 +20,4 @@ import { EVENTS } from '@app/contracts/events/events.client';
   providers: [EventsService],
   controllers: [EventsController],
 })
-export class IncomesModule {}
+export class EventsModule {}

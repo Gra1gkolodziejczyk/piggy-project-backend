@@ -20,4 +20,4 @@ import { BANKS } from '@app/contracts/banks/banks.client';
   providers: [BanksService],
   controllers: [BanksController],
 })
-export class IncomesModule {}
+export class BanksModule {}

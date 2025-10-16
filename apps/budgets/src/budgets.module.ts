@@ -15,4 +15,4 @@ import { BudgetsService } from './budgets.service';
   controllers: [BudgetsController],
   providers: [BudgetsService],
 })
-export class BanksModule {}
+export class BudgetsModule {}

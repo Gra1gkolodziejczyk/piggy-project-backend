@@ -15,4 +15,4 @@ import { EventsService } from './events.service';
   controllers: [EventsController],
   providers: [EventsService],
 })
-export class BanksModule {}
+export class EventsModule {}
