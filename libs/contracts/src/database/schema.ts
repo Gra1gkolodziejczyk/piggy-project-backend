@@ -45,7 +45,6 @@ export const users = pgTable('User', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: varchar('name', { length: 255 }),
   email: varchar('email', { length: 255 }).notNull().unique(),
-  age: integer('age'),
   phoneNumber: varchar('phoneNumber', { length: 50 }),
   emailVerified: boolean('emailVerified').default(false).notNull(),
   image: varchar('image', { length: 500 }),
