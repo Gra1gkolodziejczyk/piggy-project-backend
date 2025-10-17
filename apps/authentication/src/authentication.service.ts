@@ -12,6 +12,8 @@ import { users, accounts, banks, User } from '@app/contracts/database/schema';
 import { SignUpDto } from '@app/contracts/authentication/dto/signup.dto';
 import { SignInDto } from '@app/contracts/authentication/dto/signin.dto';
 
+type PublicUser = Omit<User, 'stripeId'>;
+
 @Injectable()
 export class AuthenticationService {
   constructor(
@@ -19,12 +21,13 @@ export class AuthenticationService {
     private readonly jwtService: JwtService,
   ) {}
 
+
   /**
    * Inscription d'un nouvel utilisateur avec création automatique du compte bancaire
    */
   async signUp(
     dto: SignUpDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<{ user: PublicUser; accessToken: string; refreshToken: string }> {
     const existingUser = await this.drizzle.db
       .select()
       .from(users)
@@ -83,7 +86,7 @@ export class AuthenticationService {
       email: result.newUser.email,
     });
 
-    const { stripeId, ...userWithoutStripe } = result.newUser;
+    const { stripeId, ...publicUser } = result.newUser;
     const {
       password,
       refreshToken: _,
@@ -91,6 +94,7 @@ export class AuthenticationService {
     } = result.newAccount;
 
     return {
+      user: publicUser,
       accessToken,
       refreshToken,
     };
