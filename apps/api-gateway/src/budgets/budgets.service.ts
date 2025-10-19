@@ -1,10 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { BUDGETS_PATTERNS } from '@app/contracts/budgets/budgets.pattern';
+import { BUDGETS } from '@app/contracts/budgets/budgets.client';
 
 @Injectable()
 export class BudgetsService {
   constructor(
-    @Inject('BUDGETS_SERVICE') private readonly budgetsClient: ClientProxy,
+    @Inject(BUDGETS) private readonly budgetsClient: ClientProxy,
   ) {}
 }

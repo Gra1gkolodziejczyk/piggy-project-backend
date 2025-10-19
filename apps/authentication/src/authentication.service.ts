@@ -35,7 +35,7 @@ export class AuthenticationService {
       .limit(1);
 
     if (existingUser.length > 0) {
-      throw new ConflictException('Email already exists');
+      throw new ConflictException('Cet email est déjà utilisé');
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
@@ -113,11 +113,11 @@ export class AuthenticationService {
       .limit(1);
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Identifiants invalides');
     }
 
     if (!user.isActive) {
-      throw new UnauthorizedException('Account is deactivated');
+      throw new UnauthorizedException('Le compte est désactivé');
     }
 
     const [account] = await this.drizzle.db
@@ -127,12 +127,12 @@ export class AuthenticationService {
       .limit(1);
 
     if (!account) {
-      throw new NotFoundException('Account not found');
+      throw new UnauthorizedException('Identifiants invalides');
     }
 
     const isPasswordValid = bcrypt.compare(dto.password, account.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Identifiants invalides');
     }
 
     const accessToken = this.jwtService.sign({

@@ -9,10 +9,7 @@ import { users, accounts, User } from '@app/contracts/database/schema';
 export class UsersService {
   constructor(private readonly drizzle: DrizzleService) {}
 
-  /**
-   * Récupère un utilisateur par son ID
-   * @throws NotFoundException si l'utilisateur n'existe pas
-   */
+
   async findUserById(id: string): Promise<User> {
     const result = await this.drizzle.db
       .select()
@@ -29,12 +26,6 @@ export class UsersService {
     return user;
   }
 
-  /**
-   * Met à jour les informations d'un utilisateur
-   * @param id - ID de l'utilisateur
-   * @param dto - Données à mettre à jour
-   * @throws NotFoundException si l'utilisateur n'existe pas
-   */
   async updateUserById(id: string, dto: UpdateUserDto): Promise<User> {
     // Vérifier que l'utilisateur existe avant de tenter la mise à jour
     await this.findUserById(id);
@@ -54,11 +45,7 @@ export class UsersService {
     return updatedUser;
   }
 
-  /**
-   * Supprime définitivement un utilisateur (hard delete)
-   * Conforme RGPD - Droit à l'oubli
-   * @throws NotFoundException si l'utilisateur n'existe pas
-   */
+
   async deleteUserById(id: string): Promise<void> {
     const result = await this.drizzle.db
       .delete(users)
@@ -100,9 +87,7 @@ export class UsersService {
     return account;
   }
 
-  /**
-   * Recherche un utilisateur par son email
-   */
+
   async findUserByEmail(email: string): Promise<User | null> {
     const result = await this.drizzle.db
       .select()

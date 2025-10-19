@@ -4,11 +4,12 @@ import { Observable } from 'rxjs';
 import { USERS_PATTERNS } from '@app/contracts/users/users.pattern';
 import { UpdateUserDto } from '@app/contracts/users/dto/updateUser.dto';
 import { User } from '@app/contracts/database/schema';
+import { USERS } from '@app/contracts/users/users.client';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @Inject('USERS_SERVICE') private readonly usersClient: ClientProxy,
+    @Inject(USERS) private readonly usersClient: ClientProxy,
   ) {}
 
   findUserById(id: string): Observable<User> {

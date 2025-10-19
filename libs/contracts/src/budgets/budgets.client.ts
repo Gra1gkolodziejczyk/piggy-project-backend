@@ -1,1 +1,1 @@
-export const BUDGETS = 'BUDGETS_CLIENT';
+export const BUDGETS = 'BUDGETS_SERVICE';

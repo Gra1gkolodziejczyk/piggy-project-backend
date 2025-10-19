@@ -1,9 +1,10 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, HttpException, InternalServerErrorException, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AuthenticationService } from './authentication.service';
 import { SignInDto } from '@app/contracts/authentication/dto/signin.dto';
 import { SignUpDto } from '@app/contracts/authentication/dto/signup.dto';
 import { GetCurrentUserId } from '@app/contracts/authentication/decorators/get-current-user-id.decorator';
+import { catchError, firstValueFrom } from 'rxjs';
 
 @ApiTags('Authentication')
 @Controller('authentication')
@@ -50,9 +51,26 @@ export class AuthenticationController {
     status: 400,
     description: 'Données de requête invalides',
   })
-  signIn(@Body() dto: SignInDto) {
-    return this.authenticationService.signIn(dto);
+  async signIn(@Body() dto: SignInDto) {
+    try {
+      return await firstValueFrom(
+        this.authenticationService.signIn(dto).pipe(
+          catchError((error) => {
+            if (error?.status === 401 || error?.error?.statusCode === 401) {
+              throw new UnauthorizedException('Une erreur s\'est produite');
+            }
+            throw new InternalServerErrorException('Une erreur s\'est produite');
+          })
+        )
+      );
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Une erreur s\'est produite');
+    }
   }
+
 
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
@@ -88,15 +106,36 @@ export class AuthenticationController {
   })
   @ApiResponse({
     status: 400,
+    description: 'Données invalides',
+  })
+  @ApiResponse({
+    status: 409,
     description: 'Email déjà utilisé ou données invalides',
   })
   @ApiResponse({
     status: 500,
-    description: 'Erreur serveur',
+    description: 'Une erreur s\'est produite',
   })
-  signUp(@Body() dto: SignUpDto) {
-    return this.authenticationService.signUp(dto);
+  async signUp(@Body() dto: SignUpDto) {
+    try {
+      return await firstValueFrom(
+        this.authenticationService.signUp(dto).pipe(
+          catchError((error) => {
+            if (error?.status === 409 || error?.error?.statusCode === 409) {
+              throw new ConflictException('Une erreur s\'est produite');
+            }
+            throw new InternalServerErrorException('Une erreur s\'est produite');
+          })
+        )
+      );
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Une erreur s\'est produite');
+    }
   }
+
 
   @Post('signout/:id')
   @HttpCode(HttpStatus.NO_CONTENT)

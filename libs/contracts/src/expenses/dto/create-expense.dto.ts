@@ -2,87 +2,128 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,
   IsNumber,
-  IsEnum,
+  IsPositive,
   IsOptional,
-  IsInt,
-  IsUUID,
+  IsBoolean,
+  IsDateString,
+  IsArray,
+  ValidateNested,
+  IsEnum,
+  MaxLength,
   Min,
   Max,
-  MinLength,
-  MaxLength,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
-export enum ExpenseFrequency {
-  DAILY = 'daily',
-  WEEKLY = 'weekly',
-  MONTHLY = 'monthly',
-  QUARTERLY = 'quarterly',
-  YEARLY = 'yearly',
-  ONCE = 'once',
+export class SplitPercentageDto {
+  @ApiProperty({
+    description: 'Nom du participant',
+    example: 'Alice',
+  })
+  @IsString()
+  @MaxLength(100)
+  name: string;
+
+  @ApiProperty({
+    description: 'Pourcentage de la dépense (entre 0.01 et 100)',
+    example: 50.0,
+    minimum: 0.01,
+    maximum: 100,
+  })
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0.01)
+  @Max(100)
+  percentage: number;
 }
 
 export class CreateExpenseDto {
   @ApiProperty({
-    description: 'ID du budget auquel appartient cette dépense',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-  })
-  @IsUUID('4', { message: 'budgetId doit être un UUID valide' })
-  budgetId: string;
-
-  @ApiProperty({
     description: 'Nom de la dépense',
-    example: 'Loyer',
-    minLength: 2,
+    example: 'Restaurant entre potes',
     maxLength: 255,
   })
   @IsString()
-  @MinLength(2, { message: 'Le nom doit contenir au moins 2 caractères' })
   @MaxLength(255)
   name: string;
 
   @ApiPropertyOptional({
-    description: 'Description détaillée de la dépense',
-    example: 'Loyer mensuel pour appartement 3 pièces',
-    maxLength: 1000,
+    description: 'Icône de la dépense (emoji ou nom)',
+    example: '🍕',
+    maxLength: 100,
   })
   @IsOptional()
   @IsString()
-  @MaxLength(1000)
+  @MaxLength(100)
+  icon?: string;
+
+  @ApiPropertyOptional({
+    description: 'Catégorie de la dépense',
+    example: 'food',
+    maxLength: 100,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  category?: string;
+
+  @ApiPropertyOptional({
+    description: 'Description détaillée de la dépense',
+    example: 'Pizza 4 fromages + desserts',
+  })
+  @IsOptional()
+  @IsString()
   description?: string;
 
   @ApiProperty({
-    description: 'Montant de la dépense en euros',
-    example: 850.5,
-    minimum: 0,
+    description: 'Montant total de la dépense (doit être positif)',
+    example: 120.5,
+    minimum: 0.01,
+    type: Number,
   })
-  @IsNumber(
-    { maxDecimalPlaces: 2 },
-    { message: 'Le montant doit être un nombre avec maximum 2 décimales' },
-  )
-  @Min(0, { message: 'Le montant doit être positif' })
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsPositive()
   amount: number;
 
-  @ApiProperty({
-    description: 'Fréquence de la dépense',
-    enum: ExpenseFrequency,
-    example: ExpenseFrequency.MONTHLY,
-    enumName: 'ExpenseFrequency',
-  })
-  @IsEnum(ExpenseFrequency, {
-    message:
-      'La fréquence doit être: daily, weekly, monthly, quarterly, yearly ou once',
-  })
-  frequency: ExpenseFrequency;
-
   @ApiPropertyOptional({
-    description: 'Jour du mois pour les dépenses mensuelles (1-31)',
-    example: 5,
-    minimum: 1,
-    maximum: 31,
+    description: 'Fréquence de récurrence de la dépense',
+    enum: ['daily', 'weekly', 'monthly', 'quarterly', 'yearly', 'once'],
+    default: 'once',
+    example: 'monthly',
   })
   @IsOptional()
-  @IsInt()
-  @Min(1, { message: 'Le jour doit être entre 1 et 31' })
-  @Max(31, { message: 'Le jour doit être entre 1 et 31' })
-  dueDay?: number;
+  @IsEnum(['daily', 'weekly', 'monthly', 'quarterly', 'yearly', 'once'])
+  frequency?: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'once';
+
+  @ApiPropertyOptional({
+    description: 'Indique si la dépense est récurrente',
+    default: false,
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isRecurring?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Date de la prochaine occurrence (pour les dépenses récurrentes)',
+    example: '2025-11-01T00:00:00Z',
+    type: String,
+  })
+  @IsOptional()
+  @IsDateString()
+  nextPaymentDate?: Date;
+
+  @ApiPropertyOptional({
+    description: 'Répartition de la dépense entre participants (la somme doit être 100%)',
+    type: [SplitPercentageDto],
+    example: [
+      { name: 'Alice', percentage: 33.33 },
+      { name: 'Bob', percentage: 33.33 },
+      { name: 'Charlie', percentage: 33.34 },
+    ],
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SplitPercentageDto)
+  splitPercentages?: SplitPercentageDto[];
 }

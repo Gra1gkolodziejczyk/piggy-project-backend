@@ -1,6 +1,6 @@
 export const BANKS_PATTERNS = {
-  GET_BALANCE: 'banks.getBalance',
-  UPDATE_BALANCE: 'banks.updateBalance',
-  GET_TRANSACTIONS: 'banks.getTransactions',
-  GET_HISTORY: 'banks.getHistory',
+  GET_BANK: 'banks.getBank',
+  ADD_BALANCE: 'banks.addBalance',
+  SUBTRACT_BALANCE: 'banks.subtractBalance',
+  UPDATE_CURRENCY: 'banks.updateCurrency',
 };

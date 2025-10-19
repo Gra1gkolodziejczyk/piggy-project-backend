@@ -1,1 +1,1 @@
-export const BANKS = 'BANKS_CLIENT';
+export const BANKS = 'BANKS_SERVICE';

@@ -17,18 +17,9 @@ export class IncomesService {
 
   constructor(private readonly drizzle: DrizzleService) {}
 
-  /**
-   * Créer un nouveau revenu pour un utilisateur
-   * @param userId - ID de l'utilisateur
-   * @param dto - Données du revenu à créer
-   * @returns Le revenu créé
-   * @throws NotFoundException si l'utilisateur n'a pas de compte bancaire
-   * @throws BadRequestException si la date de paiement est dans le passé
-   */
   async create(userId: string, dto: CreateIncomeDto): Promise<Income> {
     this.logger.log(`Creating income for user ${userId}: ${dto.name}`);
 
-    // Vérifier que l'utilisateur a un compte bancaire
     const [bank] = await this.drizzle.db
       .select()
       .from(banks)
@@ -41,7 +32,6 @@ export class IncomesService {
       );
     }
 
-    // Valider la date de paiement
     const nextPaymentDate = new Date(dto.nextPaymentDate);
     const now = new Date();
 
@@ -51,7 +41,6 @@ export class IncomesService {
       );
     }
 
-    // Créer le revenu
     const [income] = await this.drizzle.db
       .insert(incomes)
       .values({
@@ -71,15 +60,9 @@ export class IncomesService {
     return income;
   }
 
-  /**
-   * Récupérer tous les revenus actifs d'un utilisateur
-   * @param userId - ID de l'utilisateur
-   * @returns Liste des revenus actifs (isActive: true uniquement)
-   */
+
   async findAll(userId: string): Promise<Income[]> {
     this.logger.log(`Fetching all incomes for user ${userId}`);
-
-    // ✅ IMPORTANT : Filtrer sur isActive: true ET isArchived: false
     const userIncomes = await this.drizzle.db
       .select()
       .from(incomes)
@@ -97,14 +80,7 @@ export class IncomesService {
     return userIncomes;
   }
 
-  /**
-   * Récupérer un revenu spécifique par son ID
-   * @param userId - ID de l'utilisateur
-   * @param incomeId - ID du revenu
-   * @returns Le revenu trouvé
-   * @throws NotFoundException si le revenu n'existe pas
-   * @throws ForbiddenException si le revenu n'appartient pas à l'utilisateur
-   */
+
   async findOne(userId: string, incomeId: string): Promise<Income> {
     this.logger.log(`Fetching income ${incomeId} for user ${userId}`);
 
@@ -130,27 +106,13 @@ export class IncomesService {
     return income;
   }
 
-  /**
-   * Mettre à jour un revenu
-   * @param userId - ID de l'utilisateur
-   * @param incomeId - ID du revenu à modifier
-   * @param dto - Nouvelles données
-   * @returns Le revenu mis à jour
-   * @throws NotFoundException si le revenu n'existe pas
-   * @throws ForbiddenException si le revenu n'appartient pas à l'utilisateur
-   * @throws BadRequestException si la date de paiement est invalide
-   */
   async update(
     userId: string,
     incomeId: string,
     dto: UpdateIncomeDto,
   ): Promise<Income> {
     this.logger.log(`Updating income ${incomeId} for user ${userId}`);
-
-    // Vérifier que le revenu existe et appartient à l'utilisateur
     await this.findOne(userId, incomeId);
-
-    // Valider la date si elle est fournie
     if (dto.nextPaymentDate) {
       const nextPaymentDate = new Date(dto.nextPaymentDate);
       const now = new Date();
@@ -162,7 +124,6 @@ export class IncomesService {
       }
     }
 
-    // Mettre à jour le revenu
     const [updatedIncome] = await this.drizzle.db
       .update(incomes)
       .set({
@@ -184,12 +145,6 @@ export class IncomesService {
     return updatedIncome;
   }
 
-  /**
-   * Supprimer un revenu (soft delete)
-   * @param userId - ID de l'utilisateur
-   * @param incomeId - ID du revenu à supprimer
-   * @returns Confirmation de suppression
-   */
   async delete(
     userId: string,
     incomeId: string,
@@ -220,23 +175,6 @@ export class IncomesService {
     };
   }
 
-  /**
-   * Supprimer DÉFINITIVEMENT un revenu (hard delete)
-   * ⚠️ ATTENTION : Cette action est IRRÉVERSIBLE
-   *
-   * @param userId - ID de l'utilisateur
-   * @param incomeId - ID du revenu à supprimer définitivement
-   * @returns Confirmation de suppression définitive
-   *
-   * @throws NotFoundException si le revenu n'existe pas
-   * @throws ForbiddenException si le revenu n'appartient pas à l'utilisateur
-   *
-   * @remarks
-   * Cette méthode supprime physiquement le revenu de la base de données.
-   * Utilisée pour le droit à l'oubli (RGPD Article 17).
-   * La suppression est irréversible et toutes les transactions liées
-   * perdront leur référence vers ce revenu (set null via cascade).
-   */
   async hardDelete(
     userId: string,
     incomeId: string,

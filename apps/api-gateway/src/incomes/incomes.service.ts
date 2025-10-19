@@ -4,11 +4,12 @@ import { Observable } from 'rxjs';
 import { INCOMES_PATTERNS } from '@app/contracts/incomes/incomes.pattern';
 import { CreateIncomeDto } from '@app/contracts/incomes/dto/create-income.dto';
 import { UpdateIncomeDto } from '@app/contracts/incomes/dto/update-income.dto';
+import { INCOMES } from '@app/contracts/incomes/incomes.client';
 
 @Injectable()
 export class IncomesService {
   constructor(
-    @Inject('INCOMES_SERVICE') private readonly incomesClient: ClientProxy,
+    @Inject(INCOMES) private readonly incomesClient: ClientProxy,
   ) {}
 
   create(userId: string, dto: CreateIncomeDto): Observable<any> {
