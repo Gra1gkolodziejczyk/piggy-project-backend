@@ -110,7 +110,7 @@ export class CreateExpenseDto {
   })
   @IsOptional()
   @IsDateString()
-  nextPaymentDate?: Date;
+  nextPaymentDate?: string;
 
   @ApiPropertyOptional({
     description: 'Répartition de la dépense entre participants (la somme doit être 100%)',

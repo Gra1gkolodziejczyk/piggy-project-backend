@@ -50,7 +50,9 @@ export class ExpensesService {
             amount: dto.amount.toFixed(2),
             frequency: dto.frequency || 'once',
             isRecurring: dto.isRecurring || false,
-            nextPaymentDate: dto.nextPaymentDate,
+            nextPaymentDate: dto.nextPaymentDate
+              ? new Date(dto.nextPaymentDate)
+              : null,
             splitPercentages: dto.splitPercentages || null,
             isActive: true,
           })
@@ -218,7 +220,9 @@ export class ExpensesService {
             amount: dto.amount !== undefined ? dto.amount.toFixed(2) : undefined,
             frequency: dto.frequency,
             isRecurring: dto.isRecurring,
-            nextPaymentDate: dto.nextPaymentDate,
+            nextPaymentDate: dto.nextPaymentDate
+              ? new Date(dto.nextPaymentDate)
+              : null,
             splitPercentages: dto.splitPercentages,
             updatedAt: new Date(),
           })
