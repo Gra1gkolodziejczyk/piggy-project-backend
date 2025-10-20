@@ -12,9 +12,6 @@ import {
   UpdateExpenseDto,
   ExpenseResponseDto,
   CreateExpenseDto,
-  ExpenseListResponseDto,
-  FindAllExpensesQueryDto,
-  SplitPercentageDto,
 } from '@app/contracts/expenses/dto';
 
 
