@@ -30,13 +30,14 @@ export class ExpensesService {
   ): Promise<ExpenseResponseDto> {
     this.logger.log(`Creating expense for user ${userId}: ${dto.name}`);
 
-    // Validation du montant
     if (dto.amount <= 0) {
       throw new BadRequestException('Le montant doit être supérieur à 0');
     }
 
     if (dto.splitPercentages) {
       this.validateSplitPercentages(dto.splitPercentages);
+    } else {
+      console.log('⚠️ Pas de splitPercentages');
     }
 
     try {
@@ -53,7 +54,7 @@ export class ExpensesService {
             frequency: dto.frequency || 'once',
             isRecurring: dto.isRecurring || false,
             nextPaymentDate: dto.nextPaymentDate,
-            splitPercentages: dto.splitPercentages,
+            splitPercentages: dto.splitPercentages || null,
             isActive: true,
           })
           .returning();
@@ -86,23 +87,32 @@ export class ExpensesService {
           })
           .where(eq(schema.banks.userId, userId));
 
-        const splitInfo = dto.splitPercentages
-          ? ` (${this.getUserPercentage(dto.splitPercentages)}% de ${dto.amount.toFixed(2)})`
-          : '';
+        let splitInfo = ' (100% utilisateur)';
+
+        if (dto.splitPercentages != null && Array.isArray(dto.splitPercentages) && dto.splitPercentages.length > 0) {
+          try {
+            splitInfo = ` (Split: ${dto.splitPercentages.map((p, index) => {
+              if (!p || !p.name) {
+                throw new Error(`Participant ${index} invalide ou sans nom`);
+              }
+              return `${p.name} ${p.percentage}%`;
+            }).join(', ')})`;
+          } catch (mapError) {
+            throw mapError;
+          }
+        }
+
+        const transactionDescription = `Dépense: ${dto.name}${splitInfo}. Montant débité: ${amountToDebit.toFixed(2)} ${bank.currency}`;
 
         await tx.insert(schema.transactions).values({
           userId,
           type: 'expense',
           amount: `-${amountToDebit.toFixed(2)}`,
           balanceAfter: newBalance.toFixed(2),
-          description: `Dépense: ${dto.name}${splitInfo}`,
-          expenseId: expense.id,
+          description: transactionDescription,
           transactionDate: new Date(),
+          expenseId: expense.id,
         });
-
-        this.logger.log(
-          `Expense created: ${expense.id}, Bank debited: ${amountToDebit.toFixed(2)} ${bank.currency}`,
-        );
 
         return expense;
       });
@@ -110,16 +120,14 @@ export class ExpensesService {
       return this.mapToExpenseResponseDto(result);
     } catch (error) {
       if (
-        error instanceof NotFoundException ||
-        error instanceof BadRequestException
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
       ) {
         throw error;
       }
 
-      this.logger.error(`Error creating expense: ${error.message}`, error.stack);
       throw new InternalServerErrorException(
-        'Erreur lors de la création de la dépense',
-        error.message,
+        `Erreur lors de la création de la dépense: ${error.message}`,
       );
     }
   }
@@ -379,20 +387,23 @@ export class ExpensesService {
 
   private calculateUserAmount(
     amount: number,
-    splitPercentages: Array<{ name: string; percentage: number }> | null,
+    splitPercentages?: Array<{ name: string; percentage: number }>,
   ): number {
     if (!splitPercentages || splitPercentages.length === 0) {
       return amount;
     }
 
     const equalShare = 100 / splitPercentages.length;
-
     return (amount * equalShare) / 100;
   }
 
   private getUserPercentage(
-    splitPercentages: Array<{ name: string; percentage: number }>,
+    splitPercentages?: Array<{ name: string; percentage: number }> | null,
   ): number {
+    if (!splitPercentages || splitPercentages.length === 0) {
+      return 100;
+    }
+
     const equalShare = 100 / splitPercentages.length;
     return parseFloat(equalShare.toFixed(2));
   }
@@ -513,6 +524,8 @@ export class ExpensesService {
       );
     }
   }
+
+
 
   private mapToExpenseResponseDto(
     expense: schema.Expense,

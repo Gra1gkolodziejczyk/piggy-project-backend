@@ -9,9 +9,7 @@ export class ExpensesController {
   constructor(private readonly expensesService: ExpensesService) {}
 
   @MessagePattern(EXPENSES_PATTERNS.CREATE)
-  create(
-    @Payload() payload: { userId: string; dto: CreateExpenseDto }
-  ): Promise<ExpenseResponseDto> {
+  create(@Payload() payload: { userId: string; dto: CreateExpenseDto }) {
     return this.expensesService.create(payload.userId, payload.dto);
   }
 
@@ -30,7 +28,7 @@ export class ExpensesController {
   @MessagePattern(EXPENSES_PATTERNS.UPDATE)
   update(
     @Payload() payload: { userId: string; expenseId: string; dto: UpdateExpenseDto }
-  ): Promise<ExpenseResponseDto> {
+  ) {
     return this.expensesService.update(
       payload.userId,
       payload.expenseId,

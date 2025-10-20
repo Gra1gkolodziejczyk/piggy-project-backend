@@ -7,8 +7,6 @@ import {
   CreateExpenseDto,
   UpdateExpenseDto,
   ExpenseResponseDto,
-  ExpenseListResponseDto,
-  FindAllExpensesQueryDto,
 } from '@app/contracts/expenses/dto';
 
 @Injectable()
@@ -44,7 +42,7 @@ export class ExpensesService {
       EXPENSES_PATTERNS.CREATE,
       {
         userId,
-        ...createExpenseDto,
+        dto: createExpenseDto,
       },
     );
   }
@@ -59,7 +57,7 @@ export class ExpensesService {
       {
         userId,
         expenseId,
-        ...updateExpenseDto,
+        dto: updateExpenseDto,
       },
     );
   }

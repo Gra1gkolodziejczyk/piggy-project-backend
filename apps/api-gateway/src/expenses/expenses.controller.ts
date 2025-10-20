@@ -111,9 +111,9 @@ export class ExpensesController {
   })
   create(
     @GetCurrentUserId() userId: string,
-    @Body() createExpenseDto: CreateExpenseDto,
+    @Body() dto: CreateExpenseDto,
   ): Observable<ExpenseResponseDto> {
-    return this.expensesService.create(userId, createExpenseDto);
+    return this.expensesService.create(userId, dto);
   }
 
   @Patch(':id')
