@@ -16,9 +16,7 @@ export class ExpensesController {
   }
 
   @MessagePattern(EXPENSES_PATTERNS.FIND_ALL)
-  findAll(
-    @Payload() userId: string
-  ): Promise<ExpenseResponseDto[]> {
+  findAll(@Payload() userId: string) {
     return this.expensesService.findAll(userId);
   }
 

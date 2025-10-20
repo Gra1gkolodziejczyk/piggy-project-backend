@@ -49,9 +49,6 @@ export class IncomesService {
     });
   }
 
-  /**
-   * Supprimer définitivement un revenu (hard delete)
-   */
   hardDelete(userId: string, incomeId: string): Observable<any> {
     return this.incomesClient.send(INCOMES_PATTERNS.HARD_DELETE, {
       userId,

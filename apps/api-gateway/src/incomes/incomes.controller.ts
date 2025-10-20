@@ -25,13 +25,6 @@ import { UpdateIncomeDto } from '@app/contracts/incomes/dto/update-income.dto';
 import { JwtAuthGuard } from '@app/contracts/authentication/guards/jwt-auth.guard';
 import { GetCurrentUserId } from '@app/contracts/authentication/decorators/get-current-user-id.decorator';
 
-/**
- * Controller REST pour la gestion des revenus
- *
- * @remarks
- * Toutes les routes nécessitent une authentification JWT.
- * L'utilisateur ne peut accéder qu'à ses propres revenus.
- */
 @ApiTags('Incomes')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -39,17 +32,6 @@ import { GetCurrentUserId } from '@app/contracts/authentication/decorators/get-c
 export class IncomesController {
   constructor(private readonly incomesService: IncomesService) {}
 
-  /**
-   * Créer un nouveau revenu
-   *
-   * @remarks
-   * Permet à un utilisateur connecté d'ajouter un nouveau revenu.
-   * Le revenu peut être récurrent (salaire mensuel) ou ponctuel (prime).
-   *
-   * @param userId - ID de l'utilisateur (extrait du token JWT)
-   * @param dto - Données du revenu à créer
-   * @returns Le revenu créé avec son ID
-   */
   @Post()
   @ApiOperation({
     summary: 'Créer un nouveau revenu',
@@ -128,16 +110,6 @@ export class IncomesController {
     return this.incomesService.create(userId, dto);
   }
 
-  /**
-   * Récupérer tous mes revenus
-   *
-   * @remarks
-   * Retourne la liste complète des revenus actifs de l'utilisateur connecté.
-   * Les revenus archivés ne sont pas inclus dans la réponse.
-   *
-   * @param userId - ID de l'utilisateur (extrait du token JWT)
-   * @returns Liste des revenus actifs
-   */
   @Get()
   @ApiOperation({
     summary: 'Récupérer tous mes revenus',
@@ -176,17 +148,6 @@ export class IncomesController {
     return this.incomesService.findAll(userId);
   }
 
-  /**
-   * Récupérer un revenu spécifique
-   *
-   * @remarks
-   * Retourne les détails d'un revenu spécifique appartenant à l'utilisateur.
-   * Utile pour afficher le détail d'un revenu ou vérifier ses informations avant modification.
-   *
-   * @param userId - ID de l'utilisateur (extrait du token JWT)
-   * @param incomeId - ID du revenu à récupérer
-   * @returns Les détails du revenu
-   */
   @Get(':id')
   @ApiOperation({
     summary: 'Récupérer un revenu par son ID',
@@ -237,18 +198,6 @@ export class IncomesController {
     return this.incomesService.findOne(userId, incomeId);
   }
 
-  /**
-   * Modifier un revenu
-   *
-   * @remarks
-   * Permet de mettre à jour les informations d'un revenu existant.
-   * Tous les champs sont optionnels — seuls les champs fournis seront mis à jour.
-   *
-   * @param userId - ID de l'utilisateur (extrait du token JWT)
-   * @param incomeId - ID du revenu à modifier
-   * @param dto - Nouvelles données (tous les champs sont optionnels)
-   * @returns Le revenu mis à jour
-   */
   @Patch(':id')
   @ApiOperation({
     summary: 'Modifier un revenu',
@@ -298,9 +247,6 @@ export class IncomesController {
     return this.incomesService.update(userId, incomeId, dto);
   }
 
-  /**
-   * Supprimer un revenu (soft delete - archivage)
-   */
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -344,9 +290,6 @@ export class IncomesController {
     return this.incomesService.delete(userId, incomeId);
   }
 
-  /**
-   * Supprimer DÉFINITIVEMENT un revenu (hard delete)
-   */
   @Delete(':id/permanent')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({

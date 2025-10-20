@@ -125,8 +125,6 @@ export class ExpensesService {
   }
 
   async findAll(userId: string): Promise<ExpenseResponseDto[]> {
-    this.logger.log(`Fetching active expenses for user ${userId}`);
-
     const activeExpenses = await this.drizzle.db
       .select()
       .from(schema.expenses)
@@ -135,8 +133,6 @@ export class ExpensesService {
     const filtered = activeExpenses.filter(
       (expense) => expense.isActive && !expense.isArchived,
     );
-
-    this.logger.log(`Found ${filtered.length} active expenses for user ${userId}`);
 
     return filtered.map((expense) => this.mapToExpenseResponseDto(expense));
   }

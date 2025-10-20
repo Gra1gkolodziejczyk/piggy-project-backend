@@ -2,12 +2,6 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsBoolean, IsDateString, IsEnum, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 
-/**
- * @dto FindAllExpensesQueryDto
- * @description DTO pour les paramètres de requête lors de la récupération des dépenses
- *
- * Permet de filtrer et paginer les résultats
- */
 export class FindAllExpensesQueryDto {
   @ApiPropertyOptional({
     description: 'Numéro de la page',
