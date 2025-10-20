@@ -56,13 +56,11 @@ export class IncomesService {
       })
       .returning();
 
-    this.logger.log(`Income created successfully: ${income.id}`);
     return income;
   }
 
 
   async findAll(userId: string): Promise<Income[]> {
-    this.logger.log(`Fetching all incomes for user ${userId}`);
     const userIncomes = await this.drizzle.db
       .select()
       .from(incomes)
@@ -73,17 +71,11 @@ export class IncomesService {
           eq(incomes.isArchived, false),
         ),
       );
-
-    this.logger.log(
-      `Found ${userIncomes.length} active incomes for user ${userId}`,
-    );
     return userIncomes;
   }
 
 
   async findOne(userId: string, incomeId: string): Promise<Income> {
-    this.logger.log(`Fetching income ${incomeId} for user ${userId}`);
-
     const [income] = await this.drizzle.db
       .select()
       .from(incomes)
@@ -95,9 +87,6 @@ export class IncomesService {
     }
 
     if (income.userId !== userId) {
-      this.logger.warn(
-        `User ${userId} attempted to access income ${incomeId} owned by ${income.userId}`,
-      );
       throw new ForbiddenException(
         "Vous n'avez pas la permission d'accéder à ce revenu",
       );
@@ -111,7 +100,6 @@ export class IncomesService {
     incomeId: string,
     dto: UpdateIncomeDto,
   ): Promise<Income> {
-    this.logger.log(`Updating income ${incomeId} for user ${userId}`);
     await this.findOne(userId, incomeId);
     if (dto.nextPaymentDate) {
       const nextPaymentDate = new Date(dto.nextPaymentDate);
@@ -141,7 +129,6 @@ export class IncomesService {
       throw new NotFoundException(`Revenu ${incomeId} introuvable`);
     }
 
-    this.logger.log(`Income ${incomeId} updated successfully`);
     return updatedIncome;
   }
 
@@ -149,10 +136,7 @@ export class IncomesService {
     userId: string,
     incomeId: string,
   ): Promise<{ success: boolean; message: string }> {
-    this.logger.log(`Soft deleting income ${incomeId} for user ${userId}`);
-
     await this.findOne(userId, incomeId);
-
     const [result] = await this.drizzle.db
       .update(incomes)
       .set({
@@ -167,8 +151,6 @@ export class IncomesService {
       throw new NotFoundException(`Income ${incomeId} could not be deleted`);
     }
 
-    this.logger.log(`Income ${incomeId} soft deleted successfully`);
-
     return {
       success: true,
       message: 'Income archived successfully',
@@ -179,19 +161,7 @@ export class IncomesService {
     userId: string,
     incomeId: string,
   ): Promise<{ success: boolean; message: string }> {
-    this.logger.warn(
-      `⚠️ HARD DELETE requested for income ${incomeId} by user ${userId}`,
-    );
-
     const income = await this.findOne(userId, incomeId);
-
-    this.logger.warn(
-      `About to PERMANENTLY delete income: ${JSON.stringify({
-        id: income.id,
-        name: income.name,
-        amount: income.amount,
-      })}`,
-    );
 
     const result = await this.drizzle.db
       .delete(incomes)
@@ -204,8 +174,6 @@ export class IncomesService {
         `Income ${incomeId} could not be permanently deleted`,
       );
     }
-
-    this.logger.warn(`✅ Income ${incomeId} PERMANENTLY DELETED from database`);
 
     return {
       success: true,
