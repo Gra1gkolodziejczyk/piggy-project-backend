@@ -23,13 +23,11 @@ export class BanksService {
       .from(schema.banks)
       .where(eq(schema.banks.userId, userId))
       .limit(1);
-
     if (!bank) {
       throw new NotFoundException(
         `Compte bancaire non trouvé pour l'utilisateur ${userId}`,
       );
     }
-
     return this.mapToBankResponseDto(bank);
   }
 
@@ -39,11 +37,9 @@ export class BanksService {
     updateBalanceDto: UpdateBalanceDto,
   ): Promise<BankResponseDto> {
     const { amount, description } = updateBalanceDto;
-
     if (amount <= 0) {
       throw new BadRequestException('Le montant doit être supérieur à 0');
     }
-
     try {
       const result = await this.drizzle.db.transaction(async (tx) => {
         const [bank] = await tx
@@ -51,16 +47,13 @@ export class BanksService {
           .from(schema.banks)
           .where(eq(schema.banks.userId, userId))
           .limit(1);
-
         if (!bank) {
           throw new NotFoundException(
             `Compte bancaire non trouvé pour l'utilisateur ${userId}`,
           );
         }
-
         const currentBalance = parseFloat(bank.balance);
         const newBalance = currentBalance + amount;
-
         const [updatedBank] = await tx
           .update(schema.banks)
           .set({
@@ -69,7 +62,6 @@ export class BanksService {
           })
           .where(eq(schema.banks.userId, userId))
           .returning();
-
         await tx.insert(schema.transactions).values({
           userId,
           type: 'adjustment',
@@ -79,16 +71,13 @@ export class BanksService {
             description || `Ajout manuel de ${amount} ${bank.currency}`,
           transactionDate: new Date(),
         });
-
         return updatedBank;
       });
-
       return this.mapToBankResponseDto(result);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
       }
-
       throw new InternalServerErrorException(
         'Erreur lors de l\'ajout au solde',
         error.message,
@@ -102,11 +91,9 @@ export class BanksService {
     updateBalanceDto: UpdateBalanceDto,
   ): Promise<BankResponseDto> {
     const { amount, description } = updateBalanceDto;
-
     if (amount <= 0) {
       throw new BadRequestException('Le montant doit être supérieur à 0');
     }
-
     try {
       const result = await this.drizzle.db.transaction(async (tx) => {
         const [bank] = await tx
@@ -114,16 +101,13 @@ export class BanksService {
           .from(schema.banks)
           .where(eq(schema.banks.userId, userId))
           .limit(1);
-
         if (!bank) {
           throw new NotFoundException(
             `Compte bancaire non trouvé pour l'utilisateur ${userId}`,
           );
         }
-
         const currentBalance = parseFloat(bank.balance);
         const newBalance = currentBalance - amount;
-
         const [updatedBank] = await tx
           .update(schema.banks)
           .set({
@@ -132,7 +116,6 @@ export class BanksService {
           })
           .where(eq(schema.banks.userId, userId))
           .returning();
-
         await tx.insert(schema.transactions).values({
           userId,
           type: 'adjustment',
@@ -142,10 +125,8 @@ export class BanksService {
             description || `Retrait manuel de ${amount} ${bank.currency}`,
           transactionDate: new Date(),
         });
-
         return updatedBank;
       });
-
       return this.mapToBankResponseDto(result);
     } catch (error) {
       if (
@@ -154,7 +135,6 @@ export class BanksService {
       ) {
         throw error;
       }
-
       throw new InternalServerErrorException(
         'Erreur lors du retrait du solde',
         error.message,
@@ -168,20 +148,17 @@ export class BanksService {
     updateCurrencyDto: UpdateCurrencyDto,
   ): Promise<BankResponseDto> {
     const { currency } = updateCurrencyDto;
-
     try {
       const [bank] = await this.drizzle.db
         .select()
         .from(schema.banks)
         .where(eq(schema.banks.userId, userId))
         .limit(1);
-
       if (!bank) {
         throw new NotFoundException(
           `Compte bancaire non trouvé pour l'utilisateur ${userId}`,
         );
       }
-
       const [updatedBank] = await this.drizzle.db
         .update(schema.banks)
         .set({
@@ -190,7 +167,6 @@ export class BanksService {
         })
         .where(eq(schema.banks.userId, userId))
         .returning();
-
       return this.mapToBankResponseDto(updatedBank);
     } catch (error) {
       if (
@@ -199,14 +175,12 @@ export class BanksService {
       ) {
         throw error;
       }
-
       throw new InternalServerErrorException(
         'Erreur lors de la mise à jour de la devise',
         error.message,
       );
     }
   }
-
 
   private mapToBankResponseDto(bank: schema.Bank): BankResponseDto {
     return {
