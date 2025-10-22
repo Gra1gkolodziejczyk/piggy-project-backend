@@ -11,7 +11,8 @@ export class UpdateCurrencyDto {
   })
   @IsString()
   @Matches(/^[A-Z]{3}$/, {
-    message: 'La devise doit être un code ISO 4217 valide (3 lettres majuscules)',
+    message:
+      'La devise doit être un code ISO 4217 valide (3 lettres majuscules)',
   })
   currency: string;
 }

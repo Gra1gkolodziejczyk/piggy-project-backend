@@ -22,7 +22,6 @@ export class AuthenticationService {
     private readonly jwtService: JwtService,
   ) {}
 
-
   /**
    * Inscription d'un nouvel utilisateur avec création automatique du compte bancaire
    */
@@ -106,7 +105,7 @@ export class AuthenticationService {
    */
   async signIn(
     dto: SignInDto,
-  ): Promise<{ user: User, accessToken: string; refreshToken: string }> {
+  ): Promise<{ user: User; accessToken: string; refreshToken: string }> {
     const [user] = await this.drizzle.db
       .select()
       .from(users)

@@ -24,7 +24,8 @@
     "start:budgets": "nest start budgets --watch",
     "start:expenses": "nest start expenses --watch",
     "start:events": "nest start events --watch",
-    "start:incomes": "nest start incomes --watch"
+    "start:incomes": "nest start incomes --watch",
+    "start:prettier": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\""
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
