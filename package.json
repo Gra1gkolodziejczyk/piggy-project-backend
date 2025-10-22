@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
+    "start:prettier": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "docker:build": "docker-compose build",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
@@ -24,8 +24,7 @@
     "start:budgets": "nest start budgets --watch",
     "start:expenses": "nest start expenses --watch",
     "start:events": "nest start events --watch",
-    "start:incomes": "nest start incomes --watch",
-    "start:prettier": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\""
+    "start:incomes": "nest start incomes --watch"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
