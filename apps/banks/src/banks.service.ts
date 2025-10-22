@@ -31,7 +31,6 @@ export class BanksService {
     return this.mapToBankResponseDto(bank);
   }
 
-
   async addBalance(
     userId: string,
     updateBalanceDto: UpdateBalanceDto,
