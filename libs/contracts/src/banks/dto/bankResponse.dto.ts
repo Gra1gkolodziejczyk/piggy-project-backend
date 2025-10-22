@@ -1,10 +1,6 @@
+import { IsDateString, IsString, IsUUID, Matches } from 'class-validator';
+
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsString,
-  Matches,
-  IsUUID,
-  IsDateString,
-} from 'class-validator';
 
 export class BankResponseDto {
   @ApiProperty({
@@ -15,7 +11,7 @@ export class BankResponseDto {
   id: string;
 
   @ApiProperty({
-    description: 'ID de l\'utilisateur propriétaire',
+    description: "ID de l'utilisateur propriétaire",
     example: '123e4567-e89b-12d3-a456-426614174001',
   })
   @IsUUID()
@@ -36,7 +32,8 @@ export class BankResponseDto {
   })
   @IsString()
   @Matches(/^[A-Z]{3}$/, {
-    message: 'La devise doit être un code ISO 4217 valide (3 lettres majuscules)',
+    message:
+      'La devise doit être un code ISO 4217 valide (3 lettres majuscules)',
   })
   currency: string;
 

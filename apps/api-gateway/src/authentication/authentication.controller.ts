@@ -1,4 +1,14 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, HttpException, InternalServerErrorException, UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  HttpException,
+  InternalServerErrorException,
+  UnauthorizedException,
+  ConflictException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AuthenticationService } from './authentication.service';
 import { SignInDto } from '@app/contracts/authentication/dto/signin.dto';
@@ -57,20 +67,19 @@ export class AuthenticationController {
         this.authenticationService.signIn(dto).pipe(
           catchError((error) => {
             if (error?.status === 401 || error?.error?.statusCode === 401) {
-              throw new UnauthorizedException('Une erreur s\'est produite');
+              throw new UnauthorizedException("Une erreur s'est produite");
             }
-            throw new InternalServerErrorException('Une erreur s\'est produite');
-          })
-        )
+            throw new InternalServerErrorException("Une erreur s'est produite");
+          }),
+        ),
       );
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new InternalServerErrorException('Une erreur s\'est produite');
+      throw new InternalServerErrorException("Une erreur s'est produite");
     }
   }
-
 
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
@@ -114,7 +123,7 @@ export class AuthenticationController {
   })
   @ApiResponse({
     status: 500,
-    description: 'Une erreur s\'est produite',
+    description: "Une erreur s'est produite",
   })
   async signUp(@Body() dto: SignUpDto) {
     try {
@@ -122,20 +131,19 @@ export class AuthenticationController {
         this.authenticationService.signUp(dto).pipe(
           catchError((error) => {
             if (error?.status === 409 || error?.error?.statusCode === 409) {
-              throw new ConflictException('Une erreur s\'est produite');
+              throw new ConflictException("Une erreur s'est produite");
             }
-            throw new InternalServerErrorException('Une erreur s\'est produite');
-          })
-        )
+            throw new InternalServerErrorException("Une erreur s'est produite");
+          }),
+        ),
       );
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new InternalServerErrorException('Une erreur s\'est produite');
+      throw new InternalServerErrorException("Une erreur s'est produite");
     }
   }
-
 
   @Post('signout/:id')
   @HttpCode(HttpStatus.NO_CONTENT)

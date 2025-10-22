@@ -1,16 +1,17 @@
-import {
-  Injectable,
-  ConflictException,
-  UnauthorizedException,
-  NotFoundException,
-} from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { eq } from 'drizzle-orm';
 import * as bcrypt from 'bcrypt';
+
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { User, accounts, banks, users } from '@app/contracts/database/schema';
+
 import { DrizzleService } from '@app/contracts/drizzle/drizzle.service';
-import { users, accounts, banks, User } from '@app/contracts/database/schema';
-import { SignUpDto } from '@app/contracts/authentication/dto/signup.dto';
+import { JwtService } from '@nestjs/jwt';
 import { SignInDto } from '@app/contracts/authentication/dto/signin.dto';
+import { SignUpDto } from '@app/contracts/authentication/dto/signup.dto';
+import { eq } from 'drizzle-orm';
 
 type PublicUser = Omit<User, 'stripeId'>;
 

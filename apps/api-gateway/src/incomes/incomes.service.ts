@@ -8,9 +8,7 @@ import { INCOMES } from '@app/contracts/incomes/incomes.client';
 
 @Injectable()
 export class IncomesService {
-  constructor(
-    @Inject(INCOMES) private readonly incomesClient: ClientProxy,
-  ) {}
+  constructor(@Inject(INCOMES) private readonly incomesClient: ClientProxy) {}
 
   create(userId: string, dto: CreateIncomeDto): Observable<any> {
     return this.incomesClient.send(INCOMES_PATTERNS.CREATE, {

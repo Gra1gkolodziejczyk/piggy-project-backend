@@ -17,26 +17,18 @@ COPY libs ./libs
 
 # Installation et build de TOUS les services
 RUN pnpm install --frozen-lockfile && \
-    echo "=== Building api-gateway ===" && \
     pnpm run build api-gateway && \
-    echo "=== Building authentication ===" && \
     pnpm run build authentication && \
-    echo "=== Building users ===" && \
     pnpm run build users && \
     pnpm prune --prod
 
 # Vérification COMPLÈTE
-RUN echo "=== Checking dist structure ===" && \
-    ls -laR dist/apps/ && \
-    echo "=== Checking main.js files ===" && \
+RUN ls -laR dist/apps/ && \
     test -f dist/apps/api-gateway/main.js && echo "✅ api-gateway/main.js exists" || echo "❌ api-gateway/main.js MISSING" && \
     test -f dist/apps/authentication/main.js && echo "✅ authentication/main.js exists" || echo "❌ authentication/main.js MISSING" && \
     test -f dist/apps/users/main.js && echo "✅ users/main.js exists" || echo "❌ users/main.js MISSING" && \
-    echo "=== Checking ecosystem.config.js ===" && \
     cat ecosystem.config.js && \
-    echo "==========================="
-
-ENV NODE_ENV=production
+    ENV NODE_ENV=production
 
 EXPOSE 4000
 

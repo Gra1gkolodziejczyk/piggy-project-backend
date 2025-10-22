@@ -11,10 +11,7 @@ import {
 
 @Injectable()
 export class ExpensesService {
-  constructor(
-    @Inject(EXPENSES) private readonly expensesClient: ClientProxy,
-  ) {}
-
+  constructor(@Inject(EXPENSES) private readonly expensesClient: ClientProxy) {}
 
   findAll(userId: string): Observable<ExpenseResponseDto[]> {
     return this.expensesClient.send<ExpenseResponseDto[]>(
@@ -22,7 +19,6 @@ export class ExpensesService {
       userId,
     );
   }
-
 
   findOne(userId: string, expenseId: string): Observable<ExpenseResponseDto> {
     return this.expensesClient.send<ExpenseResponseDto>(

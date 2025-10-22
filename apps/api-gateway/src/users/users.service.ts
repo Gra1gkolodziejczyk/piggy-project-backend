@@ -8,9 +8,7 @@ import { USERS } from '@app/contracts/users/users.client';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @Inject(USERS) private readonly usersClient: ClientProxy,
-  ) {}
+  constructor(@Inject(USERS) private readonly usersClient: ClientProxy) {}
 
   findUserById(id: string): Observable<User> {
     return this.usersClient.send(USERS_PATTERNS.FIND_ONE, id);

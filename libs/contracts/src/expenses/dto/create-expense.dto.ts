@@ -1,18 +1,19 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsString,
-  IsNumber,
-  IsPositive,
-  IsOptional,
+  IsArray,
   IsBoolean,
   IsDateString,
-  IsArray,
-  ValidateNested,
   IsEnum,
+  IsNumber,
+  IsOptional,
+  IsPositive,
+  IsString,
+  Max,
   MaxLength,
   Min,
-  Max,
+  ValidateNested,
 } from 'class-validator';
+
 import { Type } from 'class-transformer';
 
 export class SplitPercentageDto {
@@ -104,7 +105,8 @@ export class CreateExpenseDto {
   isRecurring?: boolean;
 
   @ApiPropertyOptional({
-    description: 'Date de la prochaine occurrence (pour les dépenses récurrentes)',
+    description:
+      'Date de la prochaine occurrence (pour les dépenses récurrentes)',
     example: '2025-11-01T00:00:00Z',
     type: String,
   })
@@ -113,7 +115,8 @@ export class CreateExpenseDto {
   nextPaymentDate?: string;
 
   @ApiPropertyOptional({
-    description: 'Répartition de la dépense entre participants (la somme doit être 100%)',
+    description:
+      'Répartition de la dépense entre participants (la somme doit être 100%)',
     type: [SplitPercentageDto],
     example: [
       { name: 'Alice', percentage: 33.33 },

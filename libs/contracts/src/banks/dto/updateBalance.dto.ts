@@ -1,9 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsString,
   IsNumber,
-  IsPositive,
   IsOptional,
+  IsPositive,
+  IsString,
   MaxLength,
 } from 'class-validator';
 
@@ -22,7 +22,7 @@ export class UpdateBalanceDto {
   amount: number;
 
   @ApiPropertyOptional({
-    description: 'Description optionnelle de l\'opération (pour traçabilité)',
+    description: "Description optionnelle de l'opération (pour traçabilité)",
     example: 'Dépôt en espèces',
     maxLength: 500,
   })

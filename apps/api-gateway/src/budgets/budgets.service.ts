@@ -4,7 +4,5 @@ import { BUDGETS } from '@app/contracts/budgets/budgets.client';
 
 @Injectable()
 export class BudgetsService {
-  constructor(
-    @Inject(BUDGETS) private readonly budgetsClient: ClientProxy,
-  ) {}
+  constructor(@Inject(BUDGETS) private readonly budgetsClient: ClientProxy) {}
 }

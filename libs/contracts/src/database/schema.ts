@@ -1,15 +1,16 @@
 import {
+  boolean,
+  decimal,
+  integer,
+  jsonb,
+  pgEnum,
   pgTable,
+  text,
+  timestamp,
   uuid,
   varchar,
-  integer,
-  boolean,
-  timestamp,
-  decimal,
-  text,
-  pgEnum,
-  jsonb,
 } from 'drizzle-orm/pg-core';
+
 import { relations } from 'drizzle-orm';
 
 export const eventStatusEnum = pgEnum('event_status', [
@@ -36,7 +37,12 @@ export const transactionTypeEnum = pgEnum('transaction_type', [
 ]);
 
 export const frequencyEnum = pgEnum('frequency', [
-  'daily', 'weekly', 'monthly', 'quarterly', 'yearly', 'once'
+  'daily',
+  'weekly',
+  'monthly',
+  'quarterly',
+  'yearly',
+  'once',
 ]);
 
 export const users = pgTable('User', {
@@ -72,16 +78,25 @@ export const accounts = pgTable('Account', {
 
 export const banks = pgTable('Bank', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('userId').notNull().unique().references(() => users.id, { onDelete: 'cascade' }),
-  balance: decimal('balance', { precision: 12, scale: 2 }).default('0.00').notNull(),
+  userId: uuid('userId')
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  balance: decimal('balance', { precision: 12, scale: 2 })
+    .default('0.00')
+    .notNull(),
   currency: varchar('currency', { length: 3 }).default('EUR').notNull(),
-  lastUpdatedAt: timestamp('lastUpdatedAt', { mode: 'date' }).defaultNow().notNull(),
+  lastUpdatedAt: timestamp('lastUpdatedAt', { mode: 'date' })
+    .defaultNow()
+    .notNull(),
   createdAt: timestamp('createdAt', { mode: 'date' }).defaultNow().notNull(),
 });
 
 export const incomes = pgTable('Income', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('userId')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 255 }).notNull(),
   type: incomeTypeEnum('type').notNull(),
   amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
@@ -92,61 +107,90 @@ export const incomes = pgTable('Income', {
   isArchived: boolean('isArchived').default(false).notNull(),
   description: text('description'),
   createdAt: timestamp('createdAt', { mode: 'date' }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date' }).defaultNow().$onUpdate(() => new Date()),
+  updatedAt: timestamp('updatedAt', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date()),
   archivedAt: timestamp('archivedAt', { mode: 'date' }),
 });
 
 export const transactions = pgTable('Transaction', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('userId')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   type: transactionTypeEnum('type').notNull(),
   amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
   balanceAfter: decimal('balanceAfter', { precision: 12, scale: 2 }).notNull(),
   description: text('description').notNull(),
-  incomeId: uuid('incomeId').references(() => incomes.id, { onDelete: 'set null', }),
-  expenseId: uuid('expenseId').references(() => expenses.id, { onDelete: 'set null', }),
-  eventId: uuid('eventId').references(() => events.id, { onDelete: 'set null', }),
-  budgetId: uuid('budgetId').references(() => budgets.id, { onDelete: 'set null', }),
+  incomeId: uuid('incomeId').references(() => incomes.id, {
+    onDelete: 'set null',
+  }),
+  expenseId: uuid('expenseId').references(() => expenses.id, {
+    onDelete: 'set null',
+  }),
+  eventId: uuid('eventId').references(() => events.id, {
+    onDelete: 'set null',
+  }),
+  budgetId: uuid('budgetId').references(() => budgets.id, {
+    onDelete: 'set null',
+  }),
   transactionDate: timestamp('transactionDate', { mode: 'date' }).notNull(),
   createdAt: timestamp('createdAt', { mode: 'date' }).defaultNow().notNull(),
 });
 
 export const budgets = pgTable('Budget', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('userId')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 255 }).notNull(),
   icon: varchar('icon', { length: 100 }),
   description: text('description'),
-  currentAmount: decimal('currentAmount', { precision: 12, scale: 2 }).default('0.00').notNull(),
+  currentAmount: decimal('currentAmount', { precision: 12, scale: 2 })
+    .default('0.00')
+    .notNull(),
   targetAmount: decimal('targetAmount', { precision: 12, scale: 2 }).notNull(),
   currency: varchar('currency', { length: 3 }).default('EUR').notNull(),
   autoTransferEnabled: boolean('autoTransferEnabled').default(false).notNull(),
-  autoTransferAmount: decimal('autoTransferAmount', { precision: 10, scale: 2 }),
+  autoTransferAmount: decimal('autoTransferAmount', {
+    precision: 10,
+    scale: 2,
+  }),
   autoTransferFrequency: frequencyEnum('autoTransferFrequency'),
   autoTransferDay: integer('autoTransferDay'),
   nextAutoTransferDate: timestamp('nextAutoTransferDate', { mode: 'date' }),
   isActive: boolean('isActive').default(true).notNull(),
   isArchived: boolean('isArchived').default(false).notNull(),
   createdAt: timestamp('createdAt', { mode: 'date' }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date' }).defaultNow().$onUpdate(() => new Date()),
+  updatedAt: timestamp('updatedAt', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date()),
   archivedAt: timestamp('archivedAt', { mode: 'date' }),
 });
 
 export const budgetParticipants = pgTable('BudgetParticipant', {
   id: uuid('id').defaultRandom().primaryKey(),
-  budgetId: uuid('budgetId').notNull().references(() => budgets.id, { onDelete: 'cascade' }),
+  budgetId: uuid('budgetId')
+    .notNull()
+    .references(() => budgets.id, { onDelete: 'cascade' }),
   userId: uuid('userId').references(() => users.id, { onDelete: 'set null' }),
   name: varchar('name', { length: 255 }).notNull(),
-  contributedAmount: decimal('contributedAmount', { precision: 10, scale: 2 }).default('0.00').notNull(),
+  contributedAmount: decimal('contributedAmount', { precision: 10, scale: 2 })
+    .default('0.00')
+    .notNull(),
   isActive: boolean('isActive').default(true).notNull(),
   createdAt: timestamp('createdAt', { mode: 'date' }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date' }).defaultNow().$onUpdate(() => new Date()),
+  updatedAt: timestamp('updatedAt', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date()),
   removedAt: timestamp('removedAt', { mode: 'date' }),
 });
 
 export const expenses = pgTable('Expense', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('userId')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 255 }).notNull(),
   icon: varchar('icon', { length: 100 }),
   category: varchar('category', { length: 100 }),
@@ -155,18 +199,27 @@ export const expenses = pgTable('Expense', {
   frequency: frequencyEnum('frequency').default('once').notNull(),
   isRecurring: boolean('isRecurring').default(false).notNull(),
   nextPaymentDate: timestamp('nextPaymentDate', { mode: 'date' }),
-  splitPercentages: jsonb('splitPercentages').$type<Array<{ name: string; percentage: number }>>(),
+  splitPercentages:
+    jsonb('splitPercentages').$type<
+      Array<{ name: string; percentage: number }>
+    >(),
   isActive: boolean('isActive').default(true).notNull(),
   isArchived: boolean('isArchived').default(false).notNull(),
   createdAt: timestamp('createdAt', { mode: 'date' }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date' }).defaultNow().$onUpdate(() => new Date()),
+  updatedAt: timestamp('updatedAt', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date()),
   archivedAt: timestamp('archivedAt', { mode: 'date' }),
 });
 
 export const events = pgTable('Event', {
   id: uuid('id').defaultRandom().primaryKey(),
-  budgetId: uuid('budgetId').references(() => budgets.id, { onDelete: 'set null' }),
-  creatorId: uuid('creatorId').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  budgetId: uuid('budgetId').references(() => budgets.id, {
+    onDelete: 'set null',
+  }),
+  creatorId: uuid('creatorId')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 255 }).notNull(),
   icon: varchar('icon', { length: 100 }), // ✅
   description: text('description'),
@@ -176,25 +229,31 @@ export const events = pgTable('Event', {
   status: eventStatusEnum('status').default('planned').notNull(),
   isArchived: boolean('isArchived').default(false).notNull(),
   createdAt: timestamp('createdAt', { mode: 'date' }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date' }).defaultNow().$onUpdate(() => new Date()),
+  updatedAt: timestamp('updatedAt', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date()),
   archivedAt: timestamp('archivedAt', { mode: 'date' }),
 });
 
 export const eventParticipants = pgTable('EventParticipant', {
   id: uuid('id').defaultRandom().primaryKey(),
-  eventId: uuid('eventId').notNull().references(() => events.id, { onDelete: 'cascade' }),
+  eventId: uuid('eventId')
+    .notNull()
+    .references(() => events.id, { onDelete: 'cascade' }),
   userId: uuid('userId').references(() => users.id, { onDelete: 'set null' }),
   name: varchar('name', { length: 255 }).notNull(),
   percentage: decimal('percentage', { precision: 5, scale: 2 }).notNull(),
   hasPaid: boolean('hasPaid').default(false).notNull(),
   paidAt: timestamp('paidAt', { mode: 'date' }),
   createdAt: timestamp('createdAt', { mode: 'date' }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date' }).defaultNow().$onUpdate(() => new Date()),
+  updatedAt: timestamp('updatedAt', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
 export const usersRelations = relations(users, ({ one, many }) => ({
-  account: one(accounts, { fields: [users.id], references: [accounts.userId], }),
-  bank: one(banks, { fields: [users.id], references: [banks.userId], }),
+  account: one(accounts, { fields: [users.id], references: [accounts.userId] }),
+  bank: one(banks, { fields: [users.id], references: [banks.userId] }),
   incomes: many(incomes),
   expenses: many(expenses),
   budgets: many(budgets),
@@ -204,30 +263,30 @@ export const usersRelations = relations(users, ({ one, many }) => ({
 }));
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
-  user: one(users, { fields: [accounts.userId], references: [users.id],}),
+  user: one(users, { fields: [accounts.userId], references: [users.id] }),
 }));
 
 export const banksRelations = relations(banks, ({ one }) => ({
-  user: one(users, { fields: [banks.userId], references: [users.id],}),
+  user: one(users, { fields: [banks.userId], references: [users.id] }),
 }));
 
 export const incomesRelations = relations(incomes, ({ one, many }) => ({
-  user: one(users, { fields: [incomes.userId], references: [users.id], }),
+  user: one(users, { fields: [incomes.userId], references: [users.id] }),
   transactions: many(transactions),
 }));
 
 export const expensesRelations = relations(expenses, ({ one, many }) => ({
-  user: one(users, { fields: [expenses.userId], references: [users.id], }),
+  user: one(users, { fields: [expenses.userId], references: [users.id] }),
   transactions: many(transactions),
 }));
 
 export const budgetsRelations = relations(budgets, ({ one, many }) => ({
-  user: one(users, { fields: [budgets.userId], references: [users.id], }),
+  user: one(users, { fields: [budgets.userId], references: [users.id] }),
   transactions: many(transactions),
 }));
 
 export const eventsRelations = relations(events, ({ one, many }) => ({
-  creator: one(users, { fields: [events.creatorId], references: [users.id], }),
+  creator: one(users, { fields: [events.creatorId], references: [users.id] }),
   participants: many(eventParticipants),
   transactions: many(transactions),
 }));
@@ -235,7 +294,10 @@ export const eventsRelations = relations(events, ({ one, many }) => ({
 export const eventParticipantsRelations = relations(
   eventParticipants,
   ({ one }) => ({
-    event: one(events, { fields: [eventParticipants.eventId], references: [events.id], }),
+    event: one(events, {
+      fields: [eventParticipants.eventId],
+      references: [events.id],
+    }),
     user: one(users, {
       fields: [eventParticipants.userId],
       references: [users.id],

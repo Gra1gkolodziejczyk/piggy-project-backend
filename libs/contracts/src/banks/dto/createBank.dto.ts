@@ -1,15 +1,15 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsString,
   IsNumber,
   IsOptional,
-  Matches,
+  IsString,
   IsUUID,
+  Matches,
 } from 'class-validator';
 
 export class CreateBankDto {
   @ApiProperty({
-    description: 'ID de l\'utilisateur',
+    description: "ID de l'utilisateur",
     example: '123e4567-e89b-12d3-a456-426614174001',
   })
   @IsUUID()

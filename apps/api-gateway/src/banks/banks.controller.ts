@@ -36,7 +36,7 @@ export class BanksController {
   @ApiOperation({
     summary: 'Récupérer mes informations bancaires',
     description:
-      'Retourne le solde actuel et la devise du compte bancaire virtuel de l\'utilisateur authentifié.',
+      "Retourne le solde actuel et la devise du compte bancaire virtuel de l'utilisateur authentifié.",
   })
   @ApiResponse({
     status: 200,
@@ -68,7 +68,7 @@ export class BanksController {
   @ApiOperation({
     summary: 'Ajouter un montant à ma banque',
     description:
-      'Augmente le solde du compte bancaire d\'un montant spécifié. Cette opération crée une transaction de traçabilité.',
+      "Augmente le solde du compte bancaire d'un montant spécifié. Cette opération crée une transaction de traçabilité.",
   })
   @ApiBody({
     type: UpdateBalanceDto,
@@ -127,7 +127,7 @@ export class BanksController {
   @ApiOperation({
     summary: 'Retirer un montant de ma banque',
     description:
-      'Diminue le solde du compte bancaire d\'un montant spécifié. Cette opération crée une transaction de traçabilité.',
+      "Diminue le solde du compte bancaire d'un montant spécifié. Cette opération crée une transaction de traçabilité.",
   })
   @ApiBody({
     type: UpdateBalanceDto,
@@ -180,7 +180,6 @@ export class BanksController {
   ): Observable<BankResponseDto> {
     return this.banksService.subtractBalance(userId, updateBalanceDto);
   }
-
 
   @Patch('currency')
   @HttpCode(HttpStatus.OK)

@@ -2,7 +2,11 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ExpensesService } from './expenses.service';
 import { EXPENSES_PATTERNS } from '@app/contracts/expenses/expenses.pattern';
-import { ExpenseResponseDto, CreateExpenseDto, UpdateExpenseDto } from '@app/contracts/expenses/dto';
+import {
+  ExpenseResponseDto,
+  CreateExpenseDto,
+  UpdateExpenseDto,
+} from '@app/contracts/expenses/dto';
 
 @Controller()
 export class ExpensesController {
@@ -20,14 +24,19 @@ export class ExpensesController {
 
   @MessagePattern(EXPENSES_PATTERNS.FIND_ONE)
   findOne(
-    @Payload() payload: { userId: string; expenseId: string }
+    @Payload() payload: { userId: string; expenseId: string },
   ): Promise<ExpenseResponseDto> {
     return this.expensesService.findOne(payload.userId, payload.expenseId);
   }
 
   @MessagePattern(EXPENSES_PATTERNS.UPDATE)
   update(
-    @Payload() payload: { userId: string; expenseId: string; dto: UpdateExpenseDto }
+    @Payload()
+    payload: {
+      userId: string;
+      expenseId: string;
+      dto: UpdateExpenseDto;
+    },
   ) {
     return this.expensesService.update(
       payload.userId,
@@ -38,7 +47,7 @@ export class ExpensesController {
 
   @MessagePattern(EXPENSES_PATTERNS.DELETE)
   delete(
-    @Payload() payload: { userId: string; expenseId: string }
+    @Payload() payload: { userId: string; expenseId: string },
   ): Promise<{ success: boolean; message: string }> {
     return this.expensesService.delete(payload.userId, payload.expenseId);
   }

@@ -1,16 +1,17 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IncomeFrequency, IncomeType } from './create-income.dto';
 import {
-  IsString,
-  IsNumber,
-  IsEnum,
-  IsOptional,
   IsBoolean,
   IsDateString,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
   Min,
   MinLength,
-  MaxLength,
 } from 'class-validator';
-import { IncomeType, IncomeFrequency } from './create-income.dto';
+
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateIncomeDto {
   @ApiPropertyOptional({

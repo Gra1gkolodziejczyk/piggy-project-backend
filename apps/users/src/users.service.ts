@@ -1,14 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
 import * as bcrypt from 'bcrypt';
-import { UpdateUserDto } from '@app/contracts/users/dto/updateUser.dto';
+
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { User, accounts, users } from '@app/contracts/database/schema';
+
 import { DrizzleService } from '@app/contracts/drizzle/drizzle.service';
-import { users, accounts, User } from '@app/contracts/database/schema';
+import { UpdateUserDto } from '@app/contracts/users/dto/updateUser.dto';
+import { eq } from 'drizzle-orm';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly drizzle: DrizzleService) {}
-
 
   async findUserById(id: string): Promise<User> {
     const result = await this.drizzle.db
@@ -44,7 +45,6 @@ export class UsersService {
 
     return updatedUser;
   }
-
 
   async deleteUserById(id: string): Promise<void> {
     const result = await this.drizzle.db
@@ -86,7 +86,6 @@ export class UsersService {
 
     return account;
   }
-
 
   async findUserByEmail(email: string): Promise<User | null> {
     const result = await this.drizzle.db

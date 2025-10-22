@@ -1,6 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-
 export class ExpenseResponseDto {
   @ApiProperty({
     description: 'ID unique de la dépense',
@@ -9,7 +8,7 @@ export class ExpenseResponseDto {
   id: string;
 
   @ApiProperty({
-    description: 'ID de l\'utilisateur propriétaire',
+    description: "ID de l'utilisateur propriétaire",
     example: '123e4567-e89b-12d3-a456-426614174001',
   })
   userId: string;
@@ -99,7 +98,7 @@ export class ExpenseResponseDto {
   updatedAt: Date;
 
   @ApiPropertyOptional({
-    description: 'Date d\'archivage (si archivée)',
+    description: "Date d'archivage (si archivée)",
     example: '2025-10-20T12:00:00Z',
   })
   archivedAt?: Date | null;

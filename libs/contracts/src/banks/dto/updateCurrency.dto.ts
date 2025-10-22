@@ -1,8 +1,6 @@
+import { IsString, Matches } from 'class-validator';
+
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsString,
-  Matches,
-} from 'class-validator';
 
 export class UpdateCurrencyDto {
   @ApiProperty({

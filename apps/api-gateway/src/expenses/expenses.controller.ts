@@ -1,8 +1,31 @@
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ExpensesService } from './expenses.service';
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '@app/contracts/authentication/guards/jwt-auth.guard';
-import { CreateExpenseDto, ExpenseListResponseDto, ExpenseResponseDto, UpdateExpenseDto } from '@app/contracts/expenses/dto';
+import {
+  CreateExpenseDto,
+  ExpenseResponseDto,
+  UpdateExpenseDto,
+} from '@app/contracts/expenses/dto';
 import { GetCurrentUserId } from '@app/contracts/authentication/decorators';
 import { Observable } from 'rxjs';
 
@@ -25,7 +48,7 @@ export class ExpensesController {
   @ApiOperation({
     summary: 'Récupérer une dépense par son ID',
     description:
-      'Retourne les détails complets d\'une dépense spécifique. L\'utilisateur doit être le propriétaire de la dépense.',
+      "Retourne les détails complets d'une dépense spécifique. L'utilisateur doit être le propriétaire de la dépense.",
   })
   @ApiParam({
     name: 'id',
@@ -44,7 +67,8 @@ export class ExpensesController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Accès interdit - Cette dépense appartient à un autre utilisateur',
+    description:
+      'Accès interdit - Cette dépense appartient à un autre utilisateur',
   })
   @ApiResponse({
     status: 404,
@@ -62,7 +86,7 @@ export class ExpensesController {
   @ApiOperation({
     summary: 'Créer une nouvelle dépense',
     description:
-      'Crée une dépense associée à l\'utilisateur authentifié. La dépense peut être liée à un budget et/ou une catégorie.',
+      "Crée une dépense associée à l'utilisateur authentifié. La dépense peut être liée à un budget et/ou une catégorie.",
   })
   @ApiBody({
     type: CreateExpenseDto,
@@ -99,7 +123,8 @@ export class ExpensesController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Données invalides - Vérifier les champs requis et leur format',
+    description:
+      'Données invalides - Vérifier les champs requis et leur format',
   })
   @ApiResponse({
     status: 401,
@@ -121,7 +146,7 @@ export class ExpensesController {
   @ApiOperation({
     summary: 'Modifier une dépense existante',
     description:
-      'Met à jour les champs spécifiés d\'une dépense. Seul le propriétaire peut modifier ses dépenses.',
+      "Met à jour les champs spécifiés d'une dépense. Seul le propriétaire peut modifier ses dépenses.",
   })
   @ApiParam({
     name: 'id',
@@ -165,7 +190,8 @@ export class ExpensesController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Accès interdit - Cette dépense appartient à un autre utilisateur',
+    description:
+      'Accès interdit - Cette dépense appartient à un autre utilisateur',
   })
   @ApiResponse({
     status: 404,
@@ -202,7 +228,8 @@ export class ExpensesController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Accès interdit - Cette dépense appartient à un autre utilisateur',
+    description:
+      'Accès interdit - Cette dépense appartient à un autre utilisateur',
   })
   @ApiResponse({
     status: 404,

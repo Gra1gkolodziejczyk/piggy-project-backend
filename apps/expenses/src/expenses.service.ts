@@ -1,19 +1,20 @@
+import * as schema from '@app/contracts/database/schema';
+
 import {
-  Injectable,
-  NotFoundException,
   BadRequestException,
+  Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
-import { DrizzleService } from '@app/contracts/drizzle/drizzle.service';
-import * as schema from '@app/contracts/database/schema';
 import {
-  UpdateExpenseDto,
-  ExpenseResponseDto,
   CreateExpenseDto,
+  ExpenseResponseDto,
+  UpdateExpenseDto,
 } from '@app/contracts/expenses/dto';
 
+import { DrizzleService } from '@app/contracts/drizzle/drizzle.service';
+import { eq } from 'drizzle-orm';
 
 @Injectable()
 export class ExpensesService {
@@ -88,20 +89,30 @@ export class ExpensesService {
 
         let splitInfo = ' (100% utilisateur)';
 
-        if (dto.splitPercentages != null && Array.isArray(dto.splitPercentages) && dto.splitPercentages.length > 0) {
+        if (
+          dto.splitPercentages != null &&
+          Array.isArray(dto.splitPercentages) &&
+          dto.splitPercentages.length > 0
+        ) {
           try {
-            splitInfo = ` (Split: ${dto.splitPercentages.map((p, index) => {
-              if (!p || !p.name) {
-                throw new Error(`Participant ${index} invalide ou sans nom`);
-              }
-              return `${p.name} ${p.percentage}%`;
-            }).join(', ')})`;
+            splitInfo = ` (Split: ${dto.splitPercentages
+              .map((p, index) => {
+                if (!p || !p.name) {
+                  throw new Error(`Participant ${index} invalide ou sans nom`);
+                }
+                return `${p.name} ${p.percentage}%`;
+              })
+              .join(', ')})`;
           } catch (mapError) {
             throw mapError;
           }
         }
 
-        const transactionDescription = `Dépense: ${dto.name}${splitInfo}. Montant débité: ${amountToDebit.toFixed(2)} ${bank.currency}`;
+        const transactionDescription = `Dépense: ${
+          dto.name
+        }${splitInfo}. Montant débité: ${amountToDebit.toFixed(2)} ${
+          bank.currency
+        }`;
 
         await tx.insert(schema.transactions).values({
           userId,
@@ -144,7 +155,10 @@ export class ExpensesService {
     return filtered.map((expense) => this.mapToExpenseResponseDto(expense));
   }
 
-  async findOne(userId: string, expenseId: string): Promise<ExpenseResponseDto> {
+  async findOne(
+    userId: string,
+    expenseId: string,
+  ): Promise<ExpenseResponseDto> {
     this.logger.log(`Fetching expense ${expenseId} for user ${userId}`);
 
     const [expense] = await this.drizzle.db
@@ -166,7 +180,6 @@ export class ExpensesService {
 
     return this.mapToExpenseResponseDto(expense);
   }
-
 
   async update(
     userId: string,
@@ -198,12 +211,12 @@ export class ExpensesService {
         const oldAmount = parseFloat(currentExpense.amount);
         const newAmount = dto.amount !== undefined ? dto.amount : oldAmount;
 
-        const oldSplit = currentExpense.splitPercentages as
-          | Array<{ name: string; percentage: number }>
-          | null;
-        const newSplit = dto.splitPercentages !== undefined
-          ? dto.splitPercentages
-          : oldSplit;
+        const oldSplit = currentExpense.splitPercentages as Array<{
+          name: string;
+          percentage: number;
+        }> | null;
+        const newSplit =
+          dto.splitPercentages !== undefined ? dto.splitPercentages : oldSplit;
 
         const oldUserAmount = this.calculateUserAmount(oldAmount, oldSplit);
         const newUserAmount = this.calculateUserAmount(newAmount, newSplit);
@@ -217,7 +230,8 @@ export class ExpensesService {
             icon: dto.icon,
             category: dto.category,
             description: dto.description,
-            amount: dto.amount !== undefined ? dto.amount.toFixed(2) : undefined,
+            amount:
+              dto.amount !== undefined ? dto.amount.toFixed(2) : undefined,
             frequency: dto.frequency,
             isRecurring: dto.isRecurring,
             nextPaymentDate: dto.nextPaymentDate
@@ -253,8 +267,7 @@ export class ExpensesService {
             })
             .where(eq(schema.banks.userId, userId));
 
-          const adjustmentType =
-            difference > 0 ? 'réduction' : 'augmentation';
+          const adjustmentType = difference > 0 ? 'réduction' : 'augmentation';
           await tx.insert(schema.transactions).values({
             userId,
             type: 'expense',
@@ -266,7 +279,9 @@ export class ExpensesService {
           });
 
           this.logger.log(
-            `Bank adjusted by ${difference.toFixed(2)} ${bank.currency} due to expense update`,
+            `Bank adjusted by ${difference.toFixed(2)} ${
+              bank.currency
+            } due to expense update`,
           );
         }
 
@@ -283,14 +298,16 @@ export class ExpensesService {
         throw error;
       }
 
-      this.logger.error(`Error updating expense: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error updating expense: ${error.message}`,
+        error.stack,
+      );
       throw new InternalServerErrorException(
         'Erreur lors de la mise à jour de la dépense',
         error.message,
       );
     }
   }
-
 
   async delete(
     userId: string,
@@ -316,9 +333,10 @@ export class ExpensesService {
         }
 
         const amount = parseFloat(expense.amount);
-        const split = expense.splitPercentages as
-          | Array<{ name: string; percentage: number }>
-          | null;
+        const split = expense.splitPercentages as Array<{
+          name: string;
+          percentage: number;
+        }> | null;
         const amountToCredit = this.calculateUserAmount(amount, split);
 
         await tx
@@ -364,7 +382,9 @@ export class ExpensesService {
         });
 
         this.logger.log(
-          `Expense ${expenseId} archived, bank credited: ${amountToCredit.toFixed(2)} ${bank.currency}`,
+          `Expense ${expenseId} archived, bank credited: ${amountToCredit.toFixed(
+            2,
+          )} ${bank.currency}`,
         );
       });
 
@@ -377,14 +397,16 @@ export class ExpensesService {
         throw error;
       }
 
-      this.logger.error(`Error deleting expense: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error deleting expense: ${error.message}`,
+        error.stack,
+      );
       throw new InternalServerErrorException(
         'Erreur lors de la suppression de la dépense',
         error.message,
       );
     }
   }
-
 
   private calculateUserAmount(
     amount: number,
@@ -425,7 +447,9 @@ export class ExpensesService {
 
     if (Math.abs(totalPercentage - 100) > 0.01) {
       throw new BadRequestException(
-        `La somme des pourcentages doit être égale à 100% (actuel: ${totalPercentage.toFixed(2)}%)`,
+        `La somme des pourcentages doit être égale à 100% (actuel: ${totalPercentage.toFixed(
+          2,
+        )}%)`,
       );
     }
 
@@ -463,9 +487,10 @@ export class ExpensesService {
         }
 
         const amount = parseFloat(expense.amount);
-        const split = expense.splitPercentages as
-          | Array<{ name: string; percentage: number }>
-          | null;
+        const split = expense.splitPercentages as Array<{
+          name: string;
+          percentage: number;
+        }> | null;
         const amountToCredit = this.calculateUserAmount(amount, split);
 
         await tx
@@ -518,7 +543,10 @@ export class ExpensesService {
         throw error;
       }
 
-      this.logger.error(`Error hard deleting expense: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error hard deleting expense: ${error.message}`,
+        error.stack,
+      );
       throw new InternalServerErrorException(
         'Erreur lors de la suppression définitive de la dépense',
         error.message,
@@ -526,11 +554,7 @@ export class ExpensesService {
     }
   }
 
-
-
-  private mapToExpenseResponseDto(
-    expense: schema.Expense,
-  ): ExpenseResponseDto {
+  private mapToExpenseResponseDto(expense: schema.Expense): ExpenseResponseDto {
     return {
       id: expense.id,
       userId: expense.userId,
@@ -542,9 +566,10 @@ export class ExpensesService {
       frequency: expense.frequency,
       isRecurring: expense.isRecurring,
       nextPaymentDate: expense.nextPaymentDate,
-      splitPercentages: expense.splitPercentages as
-        | Array<{ name: string; percentage: number }>
-        | null,
+      splitPercentages: expense.splitPercentages as Array<{
+        name: string;
+        percentage: number;
+      }> | null,
       isActive: expense.isActive,
       isArchived: expense.isArchived,
       createdAt: expense.createdAt,

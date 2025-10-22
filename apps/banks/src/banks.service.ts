@@ -1,17 +1,19 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  InternalServerErrorException,
-} from '@nestjs/common';
-import { eq } from 'drizzle-orm';
 import * as schema from '@app/contracts/database/schema';
+
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   BankResponseDto,
   UpdateBalanceDto,
   UpdateCurrencyDto,
 } from '@app/contracts/banks/dto';
+
 import { DrizzleService } from '@app/contracts/drizzle/drizzle.service';
+import { eq } from 'drizzle-orm';
 
 @Injectable()
 export class BanksService {
@@ -78,12 +80,11 @@ export class BanksService {
         throw error;
       }
       throw new InternalServerErrorException(
-        'Erreur lors de l\'ajout au solde',
+        "Erreur lors de l'ajout au solde",
         error.message,
       );
     }
   }
-
 
   async subtractBalance(
     userId: string,
@@ -140,7 +141,6 @@ export class BanksService {
       );
     }
   }
-
 
   async updateCurrency(
     userId: string,

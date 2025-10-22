@@ -14,25 +14,20 @@ export class BanksService {
   constructor(@Inject(BANKS) private readonly banksClient: ClientProxy) {}
 
   getBank(userId: string): Observable<BankResponseDto> {
-    return this.banksClient.send<BankResponseDto>(
-      BANKS_PATTERNS.GET_BANK,
-      { userId },
-    );
+    return this.banksClient.send<BankResponseDto>(BANKS_PATTERNS.GET_BANK, {
+      userId,
+    });
   }
 
   addBalance(
     userId: string,
     updateBalanceDto: UpdateBalanceDto,
   ): Observable<BankResponseDto> {
-    return this.banksClient.send<BankResponseDto>(
-      BANKS_PATTERNS.ADD_BALANCE,
-      {
-        userId,
-        ...updateBalanceDto,
-      },
-    );
+    return this.banksClient.send<BankResponseDto>(BANKS_PATTERNS.ADD_BALANCE, {
+      userId,
+      ...updateBalanceDto,
+    });
   }
-
 
   subtractBalance(
     userId: string,

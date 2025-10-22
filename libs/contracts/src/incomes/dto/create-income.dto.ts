@@ -1,14 +1,14 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsString,
-  IsNumber,
-  IsEnum,
-  IsOptional,
   IsBoolean,
   IsDateString,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
   Min,
   MinLength,
-  MaxLength,
 } from 'class-validator';
 
 export enum IncomeType {

@@ -1,14 +1,15 @@
 import {
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
   BadRequestException,
+  ForbiddenException,
+  Injectable,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
-import { eq, and } from 'drizzle-orm';
-import { DrizzleService } from '@app/contracts/drizzle/drizzle.service';
-import { incomes, banks, Income } from '@app/contracts/database/schema';
+import { Income, banks, incomes } from '@app/contracts/database/schema';
+import { and, eq } from 'drizzle-orm';
+
 import { CreateIncomeDto } from '@app/contracts/incomes/dto/create-income.dto';
+import { DrizzleService } from '@app/contracts/drizzle/drizzle.service';
 import { UpdateIncomeDto } from '@app/contracts/incomes/dto/update-income.dto';
 
 @Injectable()
@@ -59,7 +60,6 @@ export class IncomesService {
     return income;
   }
 
-
   async findAll(userId: string): Promise<Income[]> {
     const userIncomes = await this.drizzle.db
       .select()
@@ -73,7 +73,6 @@ export class IncomesService {
       );
     return userIncomes;
   }
-
 
   async findOne(userId: string, incomeId: string): Promise<Income> {
     const [income] = await this.drizzle.db
